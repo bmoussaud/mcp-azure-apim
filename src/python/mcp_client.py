@@ -17,7 +17,7 @@ async def main():
     try:
         async with Client(transport=StreamableHttpTransport(
             SETLISTAPI_MCP_ENDPOINT,
-            headers={"X-API-Key": SETLISTAPI_SUBSCRIPTION_KEY},
+            headers={"x-api-key": SETLISTAPI_SUBSCRIPTION_KEY},
         ), ) as client:
             assert await client.ping()
             print("✅ Successfully authenticated!")
@@ -27,16 +27,24 @@ async def main():
             for tool in tools:
                 print(f"   - {tool.name}")
                 # print(f"     {tool.description}")
-                # print(f"     Params: {tool.inputSchema}")
+                print(f"     Params: {tool.inputSchema}")
 
             # result = await client.call_tool("get_current_users_profile")
-            result = await client.call_tool("searchForArtists", arguments={'artistName': 'Metallica', 'year': 2023, 'page': 1})
-            import json
-            print(result.content[0].text)
+            searchForArtists = await client.call_tool("searchForArtists", arguments={'artistName': 'Coldplay'})
+            print(searchForArtists.content[0].text)
+
+            searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Coldplay'})
+            print(searchForSetlists.content[0].text)
+
+            # getAListOfAnArtistsSetlists = await client.call_tool("getAListOfAnArtistsSetlists", arguments={'mbid': 'cc197bad-dc9c-440d-a5b5-d52ba2e14234', 'p': 1})
+            # print(getAListOfAnArtistsSetlists.content[0].text)
 
     except Exception as e:
         print(f"❌ Authentication failed: {e}")
         raise
+    finally:
+        print("👋 Closing client...")
+        await client.close()
 
 
 if __name__ == "__main__":

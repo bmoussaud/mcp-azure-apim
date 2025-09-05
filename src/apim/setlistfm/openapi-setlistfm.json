@@ -304,27 +304,11 @@
         "operationId": "resource__1.0_search_artists_getArtists_GET",
         "parameters": [
           {
-            "name": "artistMbid",
-            "in": "query",
-            "description": "the artist's Musicbrainz Identifier (mbid)",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "artistName",
             "in": "query",
             "description": "the artist's name",
             "schema": {
               "type": "string"
-            }
-          },
-          {
-            "name": "artistTmid",
-            "in": "query",
-            "description": "the artist's Ticketmaster Identifier (tmid) (deprecated)",
-            "schema": {
-              "type": "integer"
             }
           },
           {
@@ -334,15 +318,6 @@
             "schema": {
               "type": "integer",
               "default": "1"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "the sort of the result, either sortName (default) or relevance",
-            "schema": {
-              "type": "string",
-              "default": "sortName"
             }
           }
         ],
@@ -567,22 +542,7 @@
               "type": "string"
             }
           },
-          {
-            "name": "artistTmid",
-            "in": "query",
-            "description": "the artist's Ticketmaster Identifier (tmid) (deprecated)",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "cityId",
-            "in": "query",
-            "description": "the city's geoId",
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "cityName",
             "in": "query",
@@ -607,14 +567,7 @@
               "type": "string"
             }
           },
-          {
-            "name": "lastFm",
-            "in": "query",
-            "description": "the event's Last.fm Event ID (deprecated)",
-            "schema": {
-              "type": "integer"
-            }
-          },
+
           {
             "name": "lastUpdated",
             "in": "query",
