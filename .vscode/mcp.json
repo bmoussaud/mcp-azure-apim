@@ -1,0 +1,11 @@
+{
+
+  "servers": {
+    "setlistfm": {
+      "type": "sse",
+      "url": "https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp",
+      "headers": {"x-api-key": "1b57c50b1ae645e796c3d184112df1a1"},
+    },
+   
+  }
+}
