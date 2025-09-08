@@ -1,12 +1,19 @@
 [project]
 name = "mcp-azure-apim"
 version = "0.1.0"
-description = "MCP server exposing Setlistfm API via Azure APIM"
+description = "AI Foundry Agent using MCP server for Setlistfm API via Azure APIM"
 authors = ["Benoit Moussaud <bmoussaud@microsoft.com>"]
 requires-python = ">=3.11"
 dependencies = [
     "fastmcp>=2.12.0",
     "python-dotenv",
+    "semantic-kernel>=1.36.2",
+   
+    "azure-ai-projects",
+    "azure-ai-inference",
+    "azure-ai-agents",
+    "azure-identity",
+    "azure-monitor-opentelemetry",
 ]
 
 [tool.setuptools.packages.find]

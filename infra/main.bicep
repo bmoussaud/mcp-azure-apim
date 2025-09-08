@@ -8,14 +8,10 @@ param environmentName string
 param location string = 'francecentral'
 
 @description('Location for AI Foundry resources.')
-param aiFoundryLocation string = 'swedencentral' //'westus' 'switzerlandnorth' swedencentral
+param aiFoundryLocation string = 'switzerlandnorth' //'westus' 'switzerlandnorth' swedencentral
 
 @description('Name of the resource group to deploy to.')
 param rootname string = 'mcp-azure-apim'
-
-@description('SetlistFM API Key for MCP SetlistFM microservice.')
-@secure()
-param setlistfmApiKey string
 
 #disable-next-line no-unused-vars
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -39,32 +35,15 @@ module setlistFmApi 'modules/apim/v1/api.bicep' = {
     }
   }
 }
-@description('This is the built-in Key Vault Secrets Officer role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-secrets-user')
-resource keyVaultSecretsUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: '4633458b-17de-408a-b874-0445c86b69e6'
-}
-@description('Assigns the API Management service the role to browse and read the keys of the Key Vault to the APIM')
-resource keyVaultSecretUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(kv.id, apiManagement.name, keyVaultSecretsUserRoleDefinition.id)
-  scope: kv
-  properties: {
-    roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
-    principalId: apiManagement.outputs.apiManagementIdentityPrincipalId
-  }
-}
 
-module setlistFmNvApiKey 'modules/nvkv.bicep' = {
-  name: 'setlisfm-api-key'
+module setlistfmApiKeyNV 'modules/apim/v1/named-value.bicep' = {
+  name: 'setlistfm-api-key-nv'
   params: {
     apimName: apiManagement.outputs.name
-    keyName: 'setlisfm-api-key'
-    keyVaultName: kv.name
-    secretName: secretSetlistFMApiKey.name
+    namedValueName: 'setlisfm-api-key'
+    namedValueValue: '4b15bd76-3455-4f06-b606-293848fbad49'
+    namedValueIsSecret: true
   }
-  dependsOn: [
-    keyVaultSecretUserRoleAssignment //this role assignment is needed to allow the API Management service to access the Key Vault
-  ]
 }
 
 module applicationInsights 'modules/app-insights.bicep' = {
@@ -90,48 +69,6 @@ module eventHub 'modules/event-hub.bicep' = {
     location: location
     eventHubNamespaceName: '${rootname}-ehn-${uniqueString(resourceGroup().id)}'
     eventHubName: '${rootname}-eh-${uniqueString(resourceGroup().id)}'
-  }
-}
-
-@description('Creates an Azure Key Vault.')
-resource kv 'Microsoft.KeyVault/vaults@2024-04-01-preview' = {
-  name: 'kv${uniqueString(rootname, resourceToken)}'
-  location: location
-  properties: {
-    tenantId: subscription().tenantId
-    enableRbacAuthorization: true
-    sku: {
-      name: 'standard'
-      family: 'A'
-    }
-    //publicNetworkAccess: 'Enabled'
-  }
-}
-
-@description('Creates an Azure Key Vault Secret APPLICATIONINSIGHTS-CONNECTION-STRING.')
-resource secretAppInsightCS 'Microsoft.KeyVault/vaults/secrets@2024-04-01-preview' = {
-  parent: kv
-  name: 'APPLICATIONINSIGHTS-CONNECTIONSTRING'
-  properties: {
-    value: applicationInsights.outputs.connectionString
-  }
-}
-
-@description('Creates an Azure Key Vault Secret APPINSIGHTS-INSTRUMENTATIONKEY.')
-resource secretAppInsightInstKey 'Microsoft.KeyVault/vaults/secrets@2024-04-01-preview' = {
-  parent: kv
-  name: 'APPINSIGHTS-INSTRUMENTATIONKEY'
-  properties: {
-    value: applicationInsights.outputs.instrumentationKey
-  }
-}
-
-@description('Creates an Azure Key Vault Secret SetListFM API KEY.')
-resource secretSetlistFMApiKey 'Microsoft.KeyVault/vaults/secrets@2024-04-01-preview' = {
-  parent: kv
-  name: 'SETLISTFM-API-KEY'
-  properties: {
-    value: setlistfmApiKey
   }
 }
 
@@ -194,8 +131,11 @@ output AZURE_AI_INFERENCE_API_KEY string = aiFoundry.outputs.aiFoundryInferenceK
 output MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.outputs.connectionString
 output AZURE_LOG_LEVEL string = 'DEBUG'
-output SETLISTFM_API_KEY string = setlistfmApiKey
+
 output APIM_NAME string = apiManagement.outputs.name
 output SETLISTAPI_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}'
 output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPrimaryKey
 output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}-mcp/mcp'
+output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
+output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
+output AZURE_AI_AGENT_API_VERSION string = '2024-02-15-preview'
