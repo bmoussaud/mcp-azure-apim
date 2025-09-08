@@ -27,13 +27,13 @@ async def main():
             for tool in tools:
                 print(f"   - {tool.name}")
                 # print(f"     {tool.description}")
-                print(f"     Params: {tool.inputSchema}")
+                print(f"     Input Schema: {tool.inputSchema}")
 
             # result = await client.call_tool("get_current_users_profile")
             searchForArtists = await client.call_tool("searchForArtists", arguments={'artistName': 'Coldplay'})
             print(searchForArtists.content[0].text)
 
-            searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Coldplay'})
+            searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Blondshell'})
             print(searchForSetlists.content[0].text)
 
             # getAListOfAnArtistsSetlists = await client.call_tool("getAListOfAnArtistsSetlists", arguments={'mbid': 'cc197bad-dc9c-440d-a5b5-d52ba2e14234', 'p': 1})
