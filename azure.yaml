@@ -2,6 +2,4 @@
 
 name: mcp-azure-apim
 
-hooks:
-  postprovision:
-    run: ./hooks/gen_mcp_json.sh
+
