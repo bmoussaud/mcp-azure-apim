@@ -30,9 +30,11 @@ async def main():
                 print(f"     Input Schema: {tool.inputSchema}")
 
             # result = await client.call_tool("get_current_users_profile")
+            print("🔗 Search for artists with 'Coldplay' in the name")
             searchForArtists = await client.call_tool("searchForArtists", arguments={'artistName': 'Coldplay'})
             print(searchForArtists.content[0].text)
 
+            # print("🔗 Get a list of setlists for Blondshell")
             searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Blondshell'})
             print(searchForSetlists.content[0].text)
 

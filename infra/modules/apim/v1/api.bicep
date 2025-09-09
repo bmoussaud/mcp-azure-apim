@@ -62,8 +62,8 @@ resource apimApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
     ]
     serviceUrl: contains(api, 'serviceUrl') && !empty(api.serviceUrl) ? api.serviceUrl : null
     subscriptionKeyParameterNames: {
-      header: 'x-api-key'
-      query: 'x-api-key'
+      header: 'Ocp-Apim-Subscription-Key'
+      query: 'Ocp-Apim-Subscription-Key'
     }
     subscriptionRequired: apiSubscriptionRequired
     type: 'http'
