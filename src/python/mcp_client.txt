@@ -1,0 +1,1636 @@
+🔗 Testing connection to https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp...
+✅ Successfully authenticated!
+🔧 Available tools (2):
+   - searchForArtists
+     Input Schema: {'type': 'object', 'properties': {'artistName': {'type': 'string', 'description': "the artist's name"}, 'p': {'type': 'string', 'description': "the number of the result page you'd like to have"}}, 'required': ['artistName', 'p'], 'additionalProperties': False}
+   - searchForSetlists
+     Input Schema: {'type': 'object', 'properties': {'year': {'type': 'string', 'description': 'the year of the event'}, 'artistName': {'type': 'string', 'description': "the artist's name"}, 'p': {'type': 'string', 'description': 'the number of the result page'}, 'artistMbid': {'type': 'string', 'description': "the artist's Musicbrainz Identifier (mbid)"}}, 'required': ['artistMbid', 'artistName', 'p', 'year'], 'additionalProperties': False}
+🔗 Search for artists with 'Coldplay' in the name
+{
+   "type" : "artists",
+   "itemsPerPage" : 30,
+   "page" : 1,
+   "total" : 60,
+   "artist" : [ {
+      "mbid" : "233c19bd-082f-48e5-8863-59c58dac698d",
+      "name" : "Buena Vista Social Club vs. Coldplay",
+      "sortName" : "Buena Vista Social Club vs. Coldplay",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/buena-vista-social-club-vs-coldplay-5bd5f7a4.html"
+   }, {
+      "mbid" : "0ebca0b1-e712-430b-aa73-d3ebd295fcd5",
+      "name" : "Michael Calfan & Coldplay",
+      "sortName" : "Calfan, Michael & Coldplay",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/michael-calfan-and-coldplay-6bdf329e.html"
+   }, {
+      "mbid" : "54278f6e-eb1d-4b56-8f97-97d8cc3fb7d1",
+      "name" : "Cat Power & Coldplay",
+      "sortName" : "Cat Power & Coldplay",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/cat-power-and-coldplay-6bd87e1a.html"
+   }, {
+      "mbid" : "2c82c087-8300-488e-b1e4-0b02b789eb18",
+      "name" : "The Chainsmokers & Coldplay",
+      "sortName" : "Chainsmokers, The & Coldplay",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/the-chainsmokers-and-coldplay-33ce5029.html"
+   }, {
+      "mbid" : "cc197bad-dc9c-440d-a5b5-d52ba2e14234",
+      "name" : "Coldplay",
+      "sortName" : "Coldplay",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-3d6bde3.html"
+   }, {
+      "mbid" : "45ba2b94-b264-422d-8d34-64f518105250",
+      "name" : "Coldplay & Big Sean",
+      "sortName" : "Coldplay & Big Sean",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-big-sean-33cc1031.html"
+   }, {
+      "mbid" : "64f0d00b-b8ff-4200-9aab-57446a91e83d",
+      "name" : "Coldplay & BTS",
+      "sortName" : "Coldplay & BTS",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-bts-43f0e3a3.html"
+   }, {
+      "mbid" : "8f319b80-1057-4aa5-80cf-02fda4962b19",
+      "name" : "Coldplay & Markus Dravs",
+      "sortName" : "Coldplay & Dravs, Markus",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-markus-dravs-3be228a0.html"
+   }, {
+      "mbid" : "38c524b7-1b3b-4d9a-b0da-38d1ce51c897",
+      "name" : "Coldplay & Barry Gibb",
+      "sortName" : "Coldplay & Gibb, Barry",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-barry-gibb-43f72f27.html"
+   }, {
+      "mbid" : "33596e19-6085-4954-881e-0b4293c70da2",
+      "name" : "Coldplay & Selena Gomez",
+      "sortName" : "Coldplay & Gomez, Selena",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-selena-gomez-3bf0dca4.html"
+   }, {
+      "mbid" : "b5a124a9-d207-44e5-a98d-1c287488e7b1",
+      "name" : "Coldplay & Jon Hopkins",
+      "sortName" : "Coldplay & Hopkins, Jon",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-jon-hopkins-5be00b9c.html"
+   }, {
+      "mbid" : "d1498a1d-ea60-414d-847e-c738bc2aaa08",
+      "name" : "Coldplay & Kat Krazy",
+      "sortName" : "Coldplay & Kat Krazy",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-kat-krazy-bfaedfe.html"
+   }, {
+      "mbid" : "752b1af1-39f0-49de-8585-97676d23ff39",
+      "name" : "Coldplay & PNAU",
+      "sortName" : "Coldplay & PNAU",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-pnau-33914081.html"
+   }, {
+      "mbid" : "ac34f5bb-90ed-45e8-ae30-f4f0d29b5327",
+      "name" : "Coldplay & Rihanna",
+      "sortName" : "Coldplay & Rihanna",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-rihanna-6bdd9212.html"
+   }, {
+      "mbid" : "9e66ad8c-8c3c-410e-bb6d-a9f045b5b09e",
+      "name" : "Coldplay & Rihanna",
+      "sortName" : "Coldplay & Rihanna",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-rihanna-43deff27.html"
+   }, {
+      "mbid" : "2447c8fd-d2c3-46ca-82cb-f5de93db1046",
+      "name" : "Coldplay & Ayra Starr",
+      "sortName" : "Coldplay & Starr, Ayra",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-ayra-starr-73ea52d1.html"
+   }, {
+      "mbid" : "1a4c54a2-e0c6-47c7-a0e7-b7c7cab972aa",
+      "name" : "Coldplay & TWICE",
+      "sortName" : "Coldplay & TWICE",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-and-twice-23ef2883.html"
+   }, {
+      "mbid" : "76388d6c-8640-4544-90f4-d74269d834e1",
+      "name" : "Coldplay feat. Beyoncé",
+      "sortName" : "Coldplay feat. Beyoncé",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-beyonce-33c5b011.html"
+   }, {
+      "mbid" : "b33918f1-ad98-4808-9d82-749f5fbd44c0",
+      "name" : "Coldplay feat. JAY‐Z",
+      "sortName" : "Coldplay feat. Jay‐Z",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-jayz-6bea52a6.html"
+   }, {
+      "mbid" : "8551af4b-277a-4b2f-8665-b8ecdaf63409",
+      "name" : "Coldplay feat. Little Simz, Burna Boy, Elyanna & TINI",
+      "sortName" : "Coldplay feat. Little Simz, Burna Boy, Elyanna & TINI",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-little-simz-burna-boy-elyanna-and-tini-5be227e8.html"
+   }, {
+      "mbid" : "04b7edbf-124b-4cd1-86da-fc29cfb3bde1",
+      "name" : "Coldplay feat. Little Simz, Burna Boy, Elyanna, & TINI",
+      "sortName" : "Coldplay feat. Little Simz, Burna Boy, Elyanna, & TINI",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-little-simz-burna-boy-elyanna-and-tini-23e20cd3.html"
+   }, {
+      "mbid" : "05d2e16a-a5b4-4a01-beba-a163e38beea4",
+      "name" : "Coldplay Feat. Little Simz, Burna Boy, Elyanna, TINI",
+      "sortName" : "Coldplay Feat. Little Simz, Burna Boy, Elyanna, TINI",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-little-simz-burna-boy-elyanna-tini-23946c33.html"
+   }, {
+      "mbid" : "0cce4672-9086-4592-8153-6c805f1c8846",
+      "name" : "Coldplay feat. Kylie Minogue",
+      "sortName" : "Coldplay feat. Minogue, Kylie",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-kylie-minogue-33df3875.html"
+   }, {
+      "mbid" : "0b26e0b2-4ae3-42c1-a381-587a326fbcdd",
+      "name" : "Coldplay feat. Rihanna",
+      "sortName" : "Coldplay feat. Rihanna",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-rihanna-3d17163.html"
+   }, {
+      "mbid" : "f2f3c21b-43ad-4dce-9825-98ad94dd9359",
+      "name" : "Coldplay feat. Ayra Starr",
+      "sortName" : "Coldplay feat. Starr, Ayra",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-ayra-starr-4be3e702.html"
+   }, {
+      "mbid" : "014350a2-b3d6-44e4-b804-6bd2000f0892",
+      "name" : "Coldplay feat. Michael Stipe",
+      "sortName" : "Coldplay feat. Stipe, Michael",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-michael-stipe-23df386b.html"
+   }, {
+      "mbid" : "5d5533e1-b6f1-4ac9-8b62-0c5a10d8b9d3",
+      "name" : "Coldplay feat. Tove Lo",
+      "sortName" : "Coldplay feat. Tove Lo",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-feat-tove-lo-1bc40964.html"
+   }, {
+      "mbid" : "188cc63a-0bd9-4400-9dea-05b5ab08fb98",
+      "name" : "Coldplay ft TWICE, Little Simz, Burna Boy, Elyanna & TINI",
+      "sortName" : "Coldplay ft TWICE, Little Simz, Burna Boy, Elyanna & TINI",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-ft-twice-little-simz-burna-boy-elyanna-and-tini-4b941fda.html"
+   }, {
+      "mbid" : "52de86bb-f19d-436e-af7a-6e44431ae363",
+      "name" : "Coldplay Vs Swedish House Mafia",
+      "sortName" : "Coldplay Vs Swedish House Mafia",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-vs-swedish-house-mafia-73cb824d.html"
+   }, {
+      "mbid" : "c4eb5391-9bf7-4020-b4f1-a21b9f44e0d8",
+      "name" : "Coldplay vs. Matt Caseli & Danny Freakazoid",
+      "sortName" : "Coldplay vs. Caseli, Matt & Danny Freakazoid",
+      "disambiguation" : "",
+      "url" : "https://www.setlist.fm/setlists/coldplay-vs-matt-caseli-and-danny-freakazoid-5bdf9744.html"
+   } ]
+}
+{
+   "type" : "setlists",
+   "itemsPerPage" : 20,
+   "page" : 1,
+   "total" : 166,
+   "setlist" : [ {
+      "id" : "635ad2ab",
+      "versionId" : "g372dd9f",
+      "eventDate" : "11-09-2025",
+      "lastUpdated" : "2025-07-15T13:15:51.952+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "6bd72ae6",
+         "name" : "Electric Brixton",
+         "city" : {
+            "id" : "2643743",
+            "name" : "London",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 51.5084152563931,
+               "long" : -0.125532746315002
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/electric-brixton-london-england-6bd72ae6.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/electric-brixton-london-england-635ad2ab.html"
+   }, {
+      "id" : "2b5de88a",
+      "versionId" : "g2b5a00a2",
+      "eventDate" : "10-09-2025",
+      "lastUpdated" : "2025-01-13T19:37:04.526+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "6bd3de4e",
+         "name" : "Chalk",
+         "city" : {
+            "id" : "2654710",
+            "name" : "Brighton",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 50.8283849472495,
+               "long" : -0.139474868774414
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/chalk-brighton-england-6bd3de4e.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/chalk-brighton-england-2b5de88a.html"
+   }, {
+      "id" : "1b5d2df8",
+      "versionId" : "g337dd421",
+      "eventDate" : "08-09-2025",
+      "lastUpdated" : "2025-09-08T21:39:01.873+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "73de3a85",
+         "name" : "Electric Bristol",
+         "city" : {
+            "id" : "2654675",
+            "name" : "Bristol",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 51.45,
+               "long" : -2.5833333
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/electric-bristol-bristol-england-73de3a85.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/electric-bristol-bristol-england-1b5d2df8.html"
+   }, {
+      "id" : "235de88b",
+      "versionId" : "g3b7de420",
+      "eventDate" : "07-09-2025",
+      "lastUpdated" : "2025-09-08T08:27:16.020+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "53d62f29",
+         "name" : "Brudenell Social Club",
+         "city" : {
+            "id" : "2644689",
+            "name" : "Leeds",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 51.2333333,
+               "long" : 0.6166667
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/brudenell-social-club-leeds-england-53d62f29.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/brudenell-social-club-leeds-england-235de88b.html"
+   }, {
+      "id" : "335de895",
+      "versionId" : "g2b7d94f6",
+      "eventDate" : "06-09-2025",
+      "lastUpdated" : "2025-09-06T22:25:12.886+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "7bd6cee4",
+         "name" : "Queen Margaret Union",
+         "city" : {
+            "id" : "2648579",
+            "name" : "Glasgow",
+            "state" : "Scotland",
+            "stateCode" : "SCT",
+            "coords" : {
+               "lat" : 55.8333333,
+               "long" : -4.25
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/queen-margaret-union-glasgow-scotland-7bd6cee4.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/queen-margaret-union-glasgow-scotland-335de895.html"
+   }, {
+      "id" : "235de897",
+      "versionId" : "g7b7c5250",
+      "eventDate" : "04-09-2025",
+      "lastUpdated" : "2025-09-04T23:32:51.294+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "4bd6d3b6",
+         "name" : "New Century Hall",
+         "city" : {
+            "id" : "2643123",
+            "name" : "Manchester",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 53.4809464283615,
+               "long" : -2.23743438720703
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/new-century-hall-manchester-england-4bd6d3b6.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/new-century-hall-manchester-england-235de897.html"
+   }, {
+      "id" : "3b5de890",
+      "versionId" : "g337c7ce9",
+      "eventDate" : "02-09-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.837+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "63d20e67",
+         "name" : "Button Factory",
+         "city" : {
+            "id" : "2964574",
+            "name" : "Dublin",
+            "state" : "Dublin",
+            "stateCode" : "07",
+            "coords" : {
+               "lat" : 53.3330556,
+               "long" : -6.2488889
+            },
+            "country" : {
+               "code" : "IE",
+               "name" : "Ireland"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/button-factory-dublin-ireland-63d20e67.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "info" : "First Irish show",
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/button-factory-dublin-ireland-3b5de890.html"
+   }, {
+      "id" : "2347085b",
+      "versionId" : "g1b7281bc",
+      "eventDate" : "13-07-2025",
+      "lastUpdated" : "2025-07-14T08:37:16.557+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "3d2452f",
+         "name" : "Wiener Stadthalle - Halle D",
+         "city" : {
+            "id" : "2761369",
+            "name" : "Vienna",
+            "state" : "Vienna",
+            "stateCode" : "09",
+            "coords" : {
+               "lat" : 48.2084877601653,
+               "long" : 16.3720750808716
+            },
+            "country" : {
+               "code" : "AT",
+               "name" : "Austria"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/wiener-stadthalle-halle-d-vienna-austria-3d2452f.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/wiener-stadthalle-halle-d-vienna-austria-2347085b.html"
+   }, {
+      "id" : "2b470866",
+      "versionId" : "g5b7033c8",
+      "eventDate" : "12-07-2025",
+      "lastUpdated" : "2025-07-31T19:36:04.842+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "7bd60ae0",
+         "name" : "Letisko",
+         "city" : {
+            "id" : "3057140",
+            "name" : "Trenčín",
+            "state" : "Trenčiansky kraj",
+            "stateCode" : "06",
+            "coords" : {
+               "lat" : 48.895,
+               "long" : 18.044
+            },
+            "country" : {
+               "code" : "SK",
+               "name" : "Slovakia"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/letisko-trenin-slovakia-7bd60ae0.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Kiss City"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/letisko-trenin-slovakia-2b470866.html"
+   }, {
+      "id" : "5b450b08",
+      "versionId" : "g3b7c7ce8",
+      "eventDate" : "11-07-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.879+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "6bd6ca86",
+         "name" : "Maida Vale Studios",
+         "city" : {
+            "id" : "2643743",
+            "name" : "London",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 51.5084152563931,
+               "long" : -0.125532746315002
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/maida-vale-studios-london-england-6bd6ca86.html"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "T&A"
+            } ]
+         } ]
+      },
+      "info" : "Live studio session and interview for BBC Radio 6Music New Music Fix with Craig Charles",
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/maida-vale-studios-london-england-5b450b08.html"
+   }, {
+      "id" : "735d06d1",
+      "versionId" : "g4b76efde",
+      "eventDate" : "10-07-2025",
+      "lastUpdated" : "2025-06-16T15:46:17.952+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "73d176cd",
+         "name" : "Iberdrola Music",
+         "city" : {
+            "id" : "3117735",
+            "name" : "Madrid",
+            "state" : "Autonomous Region of Madrid",
+            "stateCode" : "29",
+            "coords" : {
+               "lat" : 40.4165020941502,
+               "long" : -3.70256423950195
+            },
+            "country" : {
+               "code" : "ES",
+               "name" : "Spain"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/iberdrola-music-madrid-spain-73d176cd.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/iberdrola-music-madrid-spain-735d06d1.html"
+   }, {
+      "id" : "359cdaf",
+      "versionId" : "g237c7cef",
+      "eventDate" : "05-07-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.895+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "bd6312e",
+         "name" : "Finsbury Park",
+         "city" : {
+            "id" : "2643743",
+            "name" : "London",
+            "state" : "England",
+            "stateCode" : "ENG",
+            "coords" : {
+               "lat" : 51.5084152563931,
+               "long" : -0.125532746315002
+            },
+            "country" : {
+               "code" : "GB",
+               "name" : "United Kingdom"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/finsbury-park-london-england-bd6312e.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Kiss City"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/finsbury-park-london-england-359cdaf.html"
+   }, {
+      "id" : "235de893",
+      "versionId" : "g2b7c7cee",
+      "eventDate" : "28-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.904+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "23d09c67",
+         "name" : "The Basement East",
+         "city" : {
+            "id" : "4644585",
+            "name" : "Nashville",
+            "state" : "Tennessee",
+            "stateCode" : "TN",
+            "coords" : {
+               "lat" : 36.1658899,
+               "long" : -86.7844432
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/the-basement-east-nashville-tn-usa-23d09c67.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            }, {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/the-basement-east-nashville-tn-235de893.html"
+   }, {
+      "id" : "1b5d2d04",
+      "versionId" : "g337c7ced",
+      "eventDate" : "27-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.913+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "23d63c6b",
+         "name" : "Variety Playhouse",
+         "city" : {
+            "id" : "4180439",
+            "name" : "Atlanta",
+            "state" : "Georgia",
+            "stateCode" : "GA",
+            "coords" : {
+               "lat" : 33.7489954,
+               "long" : -84.3879824
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/variety-playhouse-atlanta-ga-usa-23d63c6b.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            }, {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/variety-playhouse-atlanta-ga-1b5d2d04.html"
+   }, {
+      "id" : "3b5de89c",
+      "versionId" : "g3b7c7cec",
+      "eventDate" : "26-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.922+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "3d63d9f",
+         "name" : "The Orange Peel",
+         "city" : {
+            "id" : "4453066",
+            "name" : "Asheville",
+            "state" : "North Carolina",
+            "stateCode" : "NC",
+            "coords" : {
+               "lat" : 35.6009452,
+               "long" : -82.554015
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/the-orange-peel-asheville-nc-usa-3d63d9f.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/the-orange-peel-asheville-nc-3b5de89c.html"
+   }, {
+      "id" : "6b5dd6de",
+      "versionId" : "g237c7ce3",
+      "eventDate" : "24-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.932+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "3d635a7",
+         "name" : "9:30 Club",
+         "city" : {
+            "id" : "4140963",
+            "name" : "Washington",
+            "state" : "Washington, D.C.",
+            "stateCode" : "DC",
+            "coords" : {
+               "lat" : 38.895,
+               "long" : -77.036
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/930-club-washington-dc-usa-3d635a7.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Happy Birthday to You",
+               "cover" : {
+                  "mbid" : "af522e56-fe5a-4607-b70a-a22ed35acdd0",
+                  "name" : "Mildred J. Hill & Patty Hill",
+                  "sortName" : "Hill, Mildred J. & Hill, Patty",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/mildred-j-hill-and-patty-hill-3d3fd73.html"
+               },
+               "info" : "Sung to fan in audience"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Kiss City"
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "What's Fair"
+            }, {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/930-club-washington-dc-6b5dd6de.html"
+   }, {
+      "id" : "b5d2d06",
+      "versionId" : "g2b7c7ce2",
+      "eventDate" : "21-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.945+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "bd7e1be",
+         "name" : "Union Transfer",
+         "city" : {
+            "id" : "4560349",
+            "name" : "Philadelphia",
+            "state" : "Pennsylvania",
+            "stateCode" : "PA",
+            "coords" : {
+               "lat" : 39.952335,
+               "long" : -75.163789
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/union-transfer-philadelphia-pa-usa-bd7e1be.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/union-transfer-philadelphia-pa-b5d2d06.html"
+   }, {
+      "id" : "35d2d07",
+      "versionId" : "g337c7ce1",
+      "eventDate" : "20-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.959+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "73d55e25",
+         "name" : "Brooklyn Steel",
+         "city" : {
+            "id" : "5110302",
+            "name" : "Brooklyn",
+            "state" : "New York",
+            "stateCode" : "NY",
+            "coords" : {
+               "lat" : 40.65,
+               "long" : -73.95
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/brooklyn-steel-brooklyn-ny-usa-73d55e25.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower",
+               "info" : "New song, unreleased"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/brooklyn-steel-brooklyn-ny-35d2d07.html"
+   }, {
+      "id" : "335de89d",
+      "versionId" : "g3b7c7ce0",
+      "eventDate" : "19-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.970+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "13d285a1",
+         "name" : "Royale",
+         "city" : {
+            "id" : "4930956",
+            "name" : "Boston",
+            "state" : "Massachusetts",
+            "stateCode" : "MA",
+            "coords" : {
+               "lat" : 42.3584308,
+               "long" : -71.0597732
+            },
+            "country" : {
+               "code" : "US",
+               "name" : "United States"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/royale-boston-ma-usa-13d285a1.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/royale-boston-ma-335de89d.html"
+   }, {
+      "id" : "135d2d0d",
+      "versionId" : "g237c7ce7",
+      "eventDate" : "17-06-2025",
+      "lastUpdated" : "2025-09-03T03:58:14.978+0000",
+      "artist" : {
+         "mbid" : "f6621a8d-5644-460a-b0a8-9171cb2c595d",
+         "name" : "Blondshell",
+         "sortName" : "Blondshell",
+         "disambiguation" : "aka Sabrina Teitelbaum",
+         "url" : "https://www.setlist.fm/setlists/blondshell-3ff711f.html"
+      },
+      "venue" : {
+         "id" : "5bd4439c",
+         "name" : "Théâtre Fairmount",
+         "city" : {
+            "id" : "6077243",
+            "name" : "Montreal",
+            "state" : "Quebec",
+            "stateCode" : "QC",
+            "coords" : {
+               "lat" : 45.5088375,
+               "long" : -73.587809
+            },
+            "country" : {
+               "code" : "CA",
+               "name" : "Canada"
+            }
+         },
+         "url" : "https://www.setlist.fm/venue/theatre-fairmount-montreal-qc-canada-5bd4439c.html"
+      },
+      "tour" : {
+         "name" : "If You Asked For a Tour"
+      },
+      "sets" : {
+         "set" : [ {
+            "song" : [ {
+               "name" : "23's a Baby"
+            }, {
+               "name" : "Toy"
+            }, {
+               "name" : "Docket"
+            }, {
+               "name" : "Sepsis"
+            }, {
+               "name" : "Veronica Mars"
+            }, {
+               "name" : "Arms"
+            }, {
+               "name" : "T&A"
+            }, {
+               "name" : "Change"
+            }, {
+               "name" : "Berlin TV Tower"
+            }, {
+               "name" : "Thumbtack"
+            }, {
+               "name" : "Olympus"
+            }, {
+               "name" : "Diet Pepsi",
+               "cover" : {
+                  "mbid" : "610b71d9-fa78-47d6-9073-083922e73840",
+                  "name" : "Addison Rae",
+                  "sortName" : "Rae, Addison",
+                  "disambiguation" : "",
+                  "url" : "https://www.setlist.fm/setlists/addison-rae-1bf3690c.html"
+               }
+            }, {
+               "name" : "Tarmac"
+            }, {
+               "name" : "He Wants Me"
+            }, {
+               "name" : "Kiss City"
+            } ]
+         }, {
+            "encore" : 1,
+            "song" : [ {
+               "name" : "Event of a Fire"
+            }, {
+               "name" : "Salad"
+            } ]
+         } ]
+      },
+      "info" : "Setlist incomplete",
+      "url" : "https://www.setlist.fm/setlist/blondshell/2025/theatre-fairmount-montreal-qc-canada-135d2d0d.html"
+   } ]
+}
+👋 Closing client...
