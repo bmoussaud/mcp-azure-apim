@@ -66,7 +66,7 @@ This project is configured using Azure Bicep, which defines the following resour
 
 ### Configure MCP Server
 
-Go the Azure Portal, select the APIM instance and MCP Servers (preview)
+Go the Azure Portal https://portal.azure.com, select the APIM instance and MCP Servers (preview)
 Create a MCP Server, expose API as an MCP Server
 
 - API: `SetList FM`
@@ -74,7 +74,7 @@ Create a MCP Server, expose API as an MCP Server
 - Display Name: `MCP Setlist FM`
 - Name: `mcp-setlist-fm`
 
-Copy the URL of the MCP Server: Example `https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp`
+The MCP Server is ready.
 
 ![MCP Azure APIM](img/mcp_azure_apim.png)
 
@@ -239,3 +239,9 @@ once executed, it is possible to view the executed thread in the AI Foundry Port
 ![MCP Azure AI Foundry](img/mcp_ai_foundry.png)
 
 ![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_thread_info.png)
+
+## Clean up
+
+```bash
+azd down --force --purge
+```
