@@ -17,7 +17,7 @@ async def main():
     try:
         async with Client(transport=StreamableHttpTransport(
             SETLISTAPI_MCP_ENDPOINT,
-            headers={"x-api-key": SETLISTAPI_SUBSCRIPTION_KEY},
+            headers={"Ocp-Apim-Subscription-Key": SETLISTAPI_SUBSCRIPTION_KEY},
         ), ) as client:
             assert await client.ping()
             print("✅ Successfully authenticated!")

@@ -542,40 +542,6 @@
               "type": "string"
             }
           },
-
-          {
-            "name": "cityName",
-            "in": "query",
-            "description": "the name of the city",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "countryCode",
-            "in": "query",
-            "description": "the country code",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "description": "the date of the event (format dd-MM-yyyy)",
-            "schema": {
-              "type": "string"
-            }
-          },
-
-          {
-            "name": "lastUpdated",
-            "in": "query",
-            "description": "the date and time (UTC) when this setlist was last updated (format yyyyMMddHHmmss) - either edited or\nreverted. search will return setlists that were updated on or after this date",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "p",
             "in": "query",
@@ -585,46 +551,7 @@
               "default": "1"
             }
           },
-          {
-            "name": "state",
-            "in": "query",
-            "description": "the state",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "stateCode",
-            "in": "query",
-            "description": "the state code",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tourName",
-            "in": "query",
-            "description": "",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "venueId",
-            "in": "query",
-            "description": "the venue id",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "venueName",
-            "in": "query",
-            "description": "the name of the venue",
-            "schema": {
-              "type": "string"
-            }
-          },
+
           {
             "name": "year",
             "in": "query",
