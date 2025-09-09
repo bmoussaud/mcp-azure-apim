@@ -1,0 +1,1 @@
+docker pull ghcr.io/modelcontextprotocol/inspector:latest
