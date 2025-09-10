@@ -37,12 +37,8 @@ async def main():
             # print("🔗 Get a list of setlists for Blondshell")
             searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Blondshell'})
             print(searchForSetlists.content[0].text)
-
-            # getAListOfAnArtistsSetlists = await client.call_tool("getAListOfAnArtistsSetlists", arguments={'mbid': 'cc197bad-dc9c-440d-a5b5-d52ba2e14234', 'p': 1})
-            # print(getAListOfAnArtistsSetlists.content[0].text)
-
     except Exception as e:
-        print(f"❌ Authentication failed: {e}")
+        print(f"❌ failure : {e}")
         raise
     finally:
         print("👋 Closing client...")

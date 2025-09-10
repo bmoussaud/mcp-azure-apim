@@ -97,7 +97,7 @@ Prepare the environment:
 
 ```bash
 cd src/python
-uv venv
+uv venv --clear
 source .venv/bin/activate
 azd env get-values > .env
 uv sync
@@ -239,6 +239,37 @@ once executed, it is possible to view the executed thread in the AI Foundry Port
 ![MCP Azure AI Foundry](img/mcp_ai_foundry.png)
 
 ![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_thread_info.png)
+
+### MCP Policies in APIM
+
+As the MCP server owns it policy layer, there are several scenario that can be implemented. One of them is to set a rate limiting on the MCP side to protect the API side
+
+The steps are:
+
+1. Open the azure portal and select the APIM instance
+1. Select the left side `MCP Servers` and open the `mcp-setlist-fm` server
+1. Open the policies and paste the following content in the inbound section or [src/apim/setlistfm/mcp-policy-setlistfm.xml](src/apim/setlistfm/mcp-policy-setlistfm.xml)
+
+```xml
+ <rate-limit-by-key calls="10" renewal-period="30" counter-key="@(context.Request.Headers.GetValueOrDefault("mcp-api-key", "default-value"))" remaining-calls-variable-name="remainingCallsPerMCPAPI" />
+```
+
+Run the following test:
+
+```bash
+uv run mcp_client_rate.py
+```
+
+```
+🔗 Testing connection to https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp...
+❌ Failure : Client error '429 Too Many Requests' for url 'https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
+Traceback (most recent call last):
+  File "/workspaces/mcp-azure-apim/src/python/mcp_client_rate.py", line 41, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+    ....
+```
 
 ## Clean up
 
