@@ -1,8 +1,8 @@
 #!/bin/bash
-
+azd env get-values > .env
 source .env
 echo $SETLISTAPI_ENDPOINT
 echo $SETLISTAPI_SUBSCRIPTION_KEY
 set -x
-curl -H "Ocp-Apim-Subscription-Key: $SETLISTAPI_SUBSCRIPTION_KEY" ${SETLISTAPI_ENDPOINT}/1.0/search/setlists?artistName=coldplay&p=1
+curl -H "Ocp-Apim-Subscription-Key: $SETLISTAPI_SUBSCRIPTION_KEY" ${SETLISTAPI_ENDPOINT}/1.0/search/setlists?artistName=the+weeknd&p=1
 
