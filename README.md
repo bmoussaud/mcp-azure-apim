@@ -13,6 +13,7 @@ The `src` directory contains two Python examples of how to consume the MCP Serve
 
 - https://learn.microsoft.com/en-us/azure/api-management/mcp-server-overview
 - https://devblogs.microsoft.com/foundry/announcing-model-context-protocol-support-preview-in-azure-ai-foundry-agent-service/
+- https://devblogs.microsoft.com/blog/connect-once-integrate-anywhere-with-mcps
 
 ## Configuration
 
