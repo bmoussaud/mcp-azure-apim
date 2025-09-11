@@ -2,12 +2,9 @@
 
 This project demonstrates how to use Azure API Management (APIM) to expose an existing REST API as a Model-Context-Protocol (MCP) Server. The MCP Server can then be consumed as a tool by various clients, including AI agents built with Azure AI services.
 
+[Setlist.fm](https://www.setlist.fm/) is a collaborative online platform dedicated to documenting setlists—the lists of songs performed by artists or bands during concerts. Unlike official setlists, Setlist.fm focuses on what was actually played at live events.
+
 The project uses the public [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) as an example. It provisions the necessary Azure infrastructure using Bicep and the Azure Developer CLI (`azd`).
-
-The `src` directory contains two Python examples of how to consume the MCP Server:
-
-1.  A simple command-line client (`mcp_client.py`) that lists the available tools and executes them.
-2.  An AI agent (`azure_ai_agent_mcp.py`) that uses the MCP Server as a tool to answer natural language questions about musical artists and their setlists.
 
 ## Documentation
 
@@ -79,20 +76,20 @@ The MCP Server is ready.
 
 ![MCP Azure APIM](img/mcp_azure_apim.png)
 
-### Test API using Shell
+### Test SetList FM API
 
 ```bash
 cd src/shell
-azd env get-values > .env
 ./test_api.sh
 ```
 
-Open mcp.json file
-Start the toosl
-open a new githup copilot session
-promtp:'using the setlistfm tools, give me the setlists of Coldplay'
+```bash
+cd src/shell
+python test_api.py
+python test_api.py | jq .setlist[-1]
+```
 
-### Test MCP Server (Python)
+### Test MCP Server
 
 Prepare the environment:
 
