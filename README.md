@@ -150,9 +150,9 @@ Github Copilot in the agent mode can include external tools defined in the `mcp.
    Your browser does not support the video tag.
 </video>
 
-#### Using Agent
+#### Using a Custom Agent
 
-`azure_ai_agent_mcp.py` uses the [Azure Agent Service] library to create an [Agent in Azure AI Foundry] configured to use the `SetlistFM MCP Server` as tool.
+MCP has designed to provides tools to any agent. This is a sample where `azure_ai_agent_mcp.py` uses the [Azure Agent Service] library to create an [Agent in Azure AI Foundry] configured to use the `SetlistFM MCP Server` as tool.
 
 ```bash
 uv run azure_ai_agent_mcp.py
@@ -249,9 +249,9 @@ once executed, it is possible to view the executed thread in the AI Foundry Port
 
 ### MCP Policies in APIM
 
-As the MCP server owns it policy layer, there are several scenario that can be implemented. One of them is to set a rate limiting on the MCP side to protect the API side
+As the MCP server has it own policy layer, there are several scenario that can be implemented. One of them is to set a rate limiting on the MCP side to protect the API side but it could be to manage authentication, authorization or to manipulate the output to add or remove content.
 
-The steps are:
+The steps to define the MCP policy are:
 
 1. Open the azure portal and select the APIM instance
 1. Select the left side `MCP Servers` and open the `mcp-setlist-fm` server
