@@ -2,4 +2,12 @@
 
 name: mcp-azure-apim
 
+provision:
+  - name: "infra"
+    template: "infra/main.bicep"
+    parameters: {}
 
+hooks:
+  postprovision:
+    # Execute the root script to generate MCP JSON artifacts after infra is provisioned.
+    run: ./hooks/gen_mcp_json.sh
