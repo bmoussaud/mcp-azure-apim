@@ -14,6 +14,8 @@ The project uses the public [Setlist.fm API](https://api.setlist.fm/docs/1.0/ind
 
 ## Configuration
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/bmoussaud/mcp-azure-apim)
+
 ### Configure Azure Resources
 
 This project is using `azd` to configure the Azure Resources

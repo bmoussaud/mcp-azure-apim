@@ -32,11 +32,11 @@ async def main():
             # result = await client.call_tool("get_current_users_profile")
             print("🔗 Search for artists with 'Coldplay' in the name")
             searchForArtists = await client.call_tool("searchForArtists", arguments={'artistName': 'Coldplay'})
-            print(searchForArtists.content[0].text)
+            #print(searchForArtists.content[0].text)
 
             # print("🔗 Get a list of setlists for Blondshell")
             searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Wolf Alice', 'p': 1})
-            print(searchForSetlists.content[0].text)
+            #print(searchForSetlists.content[0].text)
     except Exception as e:
         print(f"❌ failure : {e}")
         raise
