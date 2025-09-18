@@ -285,3 +285,8 @@ Traceback (most recent call last):
 ```bash
 azd down --force --purge
 ```
+
+oauth/entraid
+
+https://github.com/microsoft/apim-auth-entraid-with-approles/blob/main/README.md
+https://github.com/swgriffith/azure-guides/blob/master/aad-oauth2-on-behalf-of.md

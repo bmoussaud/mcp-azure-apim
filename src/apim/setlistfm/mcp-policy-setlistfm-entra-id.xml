@@ -1,0 +1,37 @@
+<!--
+    - Policies are applied in the order they appear.
+    - Position <base/> inside a section to inherit policies from the outer scope.
+    - Comments within policies are not preserved.
+-->
+<!-- Add policies as children to the <inbound>, <outbound>, <backend>, and <on-error> elements -->
+<policies>
+	<!-- Throttle, authorize, validate, cache, or transform the requests -->
+	<inbound>
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized due Benoit APIM Policy" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
+            <openid-config url="https://login.microsoftonline.com/be38c437-5790-4e3a-bb56-4811371e35ea/v2.0/.well-known/openid-configuration" />
+            <audiences>
+                <audience>api://db049f26-c8bd-4884-97b9-939a2f4f702a</audience>
+            </audiences>
+            <issuers>
+                <issuer>https://sts.windows.net/be38c437-5790-4e3a-bb56-4811371e35ea/</issuer>
+            </issuers>
+        </validate-jwt>
+		<!-- Set the subscription key header for the backend service -->
+		<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+			<value>b9fa86dd9c434eff946fde8043e4e902</value>
+		</set-header>
+		<base />
+	</inbound>
+	<!-- Control if and how the requests are forwarded to services  -->
+	<backend>
+		<base />
+	</backend>
+	<!-- Customize the responses -->
+	<outbound>
+		<base />
+	</outbound>
+	<!-- Handle exceptions and customize error responses  -->
+	<on-error>
+		<base />
+	</on-error>
+</policies>

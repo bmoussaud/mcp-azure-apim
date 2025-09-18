@@ -1,0 +1,12 @@
+{
+    "experimentalFeaturesEnabled": {
+        "extensibility": true
+    },
+    // specify an alias for the version of the v1.0 dynamic types package you want to use
+   
+ "extensions": {
+    "graphV1": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0",
+    "graphBeta": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/beta:1.0.0"
+  }
+
+}

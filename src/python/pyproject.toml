@@ -14,6 +14,7 @@ dependencies = [
     "azure-ai-agents==1.1.0b4",
     "azure-identity",
     "azure-monitor-opentelemetry",
+    "msal",
 ]
 
 [tool.setuptools.packages.find]

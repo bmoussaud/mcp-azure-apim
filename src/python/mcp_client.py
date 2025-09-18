@@ -36,7 +36,7 @@ async def main():
 
             # print("🔗 Get a list of setlists for Blondshell")
             searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Wolf Alice', 'p': 1})
-            #print(searchForSetlists.content[0].text)
+            print(searchForSetlists.content[0].text)
     except Exception as e:
         print(f"❌ failure : {e}")
         raise

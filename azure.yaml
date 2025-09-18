@@ -10,4 +10,8 @@ provision:
 hooks:
   postprovision:
     # Execute the root script to generate MCP JSON artifacts after infra is provisioned.
-    run: ./hooks/gen_mcp_json.sh
+    - shell: sh
+      run: ./hooks/gen_mcp_json.sh
+    # Execute the script to generate MCP Entra ID policy after infra is provisioned.
+    - shell: sh
+      run: ./hooks/gen_mcp_entraid_policy.sh
