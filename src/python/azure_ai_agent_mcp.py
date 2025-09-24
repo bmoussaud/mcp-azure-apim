@@ -63,15 +63,24 @@ mcp_tool = McpTool(
 # Allowed values are "never" or "always"
 # mcp_tool.set_approval_mode("never")
 
-mcp_tool.update_headers(
-    "Ocp-Apim-Subscription-Key", str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY")))
-print(f"MCP Tool configured with HEADERs: {mcp_tool.headers}")
-print(f"MCP Tool resources: {mcp_tool.resources}")
+
+async def azure_default_credential_token():
+    print("Using DefaultAzureCredential")
+    from azure.identity import DefaultAzureCredential
+    credential = DefaultAzureCredential()
+    scope = f"api://{os.getenv("OAUTH_APP_ID")}/.default"
+    access_token = credential.get_token(scope)
+    return access_token.token
 
 
 async def main() -> None:
     with project_client:
         agents_client = project_client.agents
+
+        print(f"MCP Tool resources: {mcp_tool.resources}")
+        mcp_tool.update_headers(
+            "Ocp-Apim-Subscription-Key", str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY")))
+        mcp_tool.update_headers("Authorization", f"Bearer {await azure_default_credential_token()}")
 
         # Create a new agent.
         # NOTE: To reuse existing agent, fetch it with get_agent(agent_id)
