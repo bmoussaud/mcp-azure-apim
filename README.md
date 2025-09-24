@@ -21,50 +21,26 @@ The project uses the public [Setlist.fm API](https://api.setlist.fm/docs/1.0/ind
 This project is using `azd` to configure the Azure Resources
 
 ```bash
-azd auth login
-azd provision
+azd up
+
+New environment 'dev' created and set as default
+? Select an Azure Subscription to use: 25. xxxxx-qqqqqqq-xxxxx (111111111-1111-1111-1111-11111111)
+? Pick a resource group to use: 1. Create a new resource group
+? Select a location to create the resource group in: 50. (US) East US 2 (eastus2)
+? Enter a name for the new resource group: rm-mcp-dev
 ```
 
 This project is configured using Azure Bicep, which defines the following resources:
 
-1. **API Management**
+1. **API Management** Manages APIs for the application, providing a gateway for API calls, used to MCP Feature to expose API
+2. **Application Insights** Monitors application performance and usage, providing insights into the application's health.
+3. **Log Analytics Workspace** Collects and analyzes log data from various resources for monitoring and troubleshooting.
+4. **AI Foundry** Deploys AI models, specifically a GPT-4.1 mini model for inference
+5. **SetlistFM API** Provides access to the SetlistFM API, allowing users to retrieve setlist data using APIM
+6. **Named Value for API Key** Stores the API key securely for accessing the SetlistFM API.
+7. **Application Registration** in EntraID to manage OAuth2 Permission Scopes.
 
-   - **Name**: `${rootname}-api-management-${environmentName}`
-   - **Publisher Name**: Setlistfy Apps
-   - **SKU**: Basicv2
-   - **Description**: Manages APIs for the application, providing a gateway for API calls.
-
-2. **Application Insights**
-
-   - **Name**: `${rootname}-app-insights`
-   - **Description**: Monitors application performance and usage, providing insights into the application's health.
-
-3. **Log Analytics Workspace**
-
-   - **Name**: `${rootname}-log-analytics`
-   - **Description**: Collects and analyzes log data from various resources for monitoring and troubleshooting.
-
-4. **Event Hub**
-
-   - **Namespace Name**: `${rootname}-ehn-${uniqueString(resourceGroup().id)}`
-   - **Description**: A scalable event ingestion service for processing large amounts of data in real-time.
-
-5. **AI Foundry**
-
-   - **Name**: `foundry-${rootname}-${aiFoundryLocation}-${environmentName}`
-   - **Description**: Deploys AI models, specifically a GPT-4.1 mini model for inference.
-
-6. **SetlistFM API**
-
-   - **Name**: `setlistfm`
-   - **Description**: Provides access to the SetlistFM API, allowing users to retrieve setlist data.
-   - **Service URL**: `https://api.setlist.fm/rest`
-
-7. **Named Value for API Key**
-   - **Name**: `setlisfm-api-key`
-   - **Description**: Stores the API key securely for accessing the SetlistFM API.
-
-### Configure MCP Server
+### Exposed API using an MCP Server
 
 Go the Azure Portal https://portal.azure.com, select the APIM instance and MCP Servers (preview)
 Create a MCP Server, expose API as an MCP Server
@@ -82,16 +58,11 @@ The MCP Server is ready.
 
 ```bash
 cd src/shell
+# the script displays the latest setlist performed by The Weeknd
 ./test_api.sh
 ```
 
-```bash
-cd src/shell
-python test_api.py
-python test_api.py | jq .setlist[-1]
-```
-
-### Test MCP Server
+## Test MCP Server
 
 Prepare the environment:
 
@@ -103,7 +74,7 @@ azd env get-values > .env
 uv sync
 ```
 
-#### Using MCP Client
+### Using MCP Client (Python)
 
 `mcp_client.py` uses a library acting as MCP Client. It lists the exposed tools, and call them: `searchForArtists(coldplay)` and `searchForSetlists(Blondshell)`
 
@@ -121,29 +92,49 @@ Sample Output
      Input Schema: {'type': 'object', 'properties': {'artistName': {'type': 'string', 'description': "the artist's name"}, 'p': {'type': 'string', 'description': "the number of the result page you'd like to have"}}, 'required': ['artistName', 'p'], 'additionalProperties': False}
    - searchForSetlists
      Input Schema: {'type': 'object', 'properties': {'year': {'type': 'string', 'description': 'the year of the event'}, 'artistName': {'type': 'string', 'description': "the artist's name"}, 'p': {'type': 'string', 'description': 'the number of the result page'}, 'artistMbid': {'type': 'string', 'description': "the artist's Musicbrainz Identifier (mbid)"}}, 'required': ['artistMbid', 'artistName', 'p', 'year'], 'additionalProperties': False}
+------------------------------------------------------------------------------------------------------------------------------
 🔗 Search for artists with 'Coldplay' in the name
-{
-   "type" : "artists",
-   "itemsPerPage" : 30,
-   "page" : 1,
-   "total" : 60,
-   "artist" : [ {
-      "mbid" : "233c19bd-082f-48e5-8863-59c58dac698d",
-      "name" : "Buena Vista Social Club vs. Coldplay",
-      "sortName" : "Buena Vista Social Club vs. Coldplay",
-      "disambiguation" : "",
-      "url" : "https://www.setlist.fm/setlists/buena-vista-social-club-vs-coldplay-5bd5f7a4.html"
-   }, {
-      "mbid" : "0ebca0b1-e712-430b-aa73-d3ebd295fcd5",
-      "name" : "Michael Calfan & Coldplay",
-      "sortName" : "Calfan, Michael & Coldplay",
-      "disambiguation" : "",
-      "url" : "https://www.setlist.fm/setlists/michael-calfan-and-coldplay-6bdf329e.html"
-   }, {
-    ....
+| Name                                 | URL                                                                               |
+| ------------------------------------ | --------------------------------------------------------------------------------- |
+| Buena Vista Social Club vs. Coldplay | https://www.setlist.fm/setlists/buena-vista-social-club-vs-coldplay-5bd5f7a4.html |
+| Michael Calfan & Coldplay            | https://www.setlist.fm/setlists/michael-calfan-and-coldplay-6bdf329e.html         |
+| Cat Power & Coldplay                 | https://www.setlist.fm/setlists/cat-power-and-coldplay-6bd87e1a.html              |
+| The Chainsmokers & Coldplay          | https://www.setlist.fm/setlists/the-chainsmokers-and-coldplay-33ce5029.html       |
+| Coldplay                             | https://www.setlist.fm/setlists/coldplay-3d6bde3.html                             |
+------------------------------------------------------------------------------------------------------------------------------
+🔗 Get a list of setlists for Blondshell
+🎤 23-09-2025 · History (Toronto)
+Tour: The Clearing
+Link: https://www.setlist.fm/setlist/wolf-alice/2025/history-toronto-on-canada-2b47f072.html
+
+Set:
+  1. Thorns
+  2. Your Loves Whore
+  3. Formidable Cool
+  4. Passenger Seat
+  5. Bloom Baby Bloom
+  6. Just Two Girls
+  7. Leaning Against the Wall
+  8. How Can I Make It OK?
+  9. Safe From Heartbreak (If You Never Fall in Love)
+  10. White Horses
+  11. Bros
+  12. Delicious Things
+  13. Bread Butter Tea Sugar
+  14. Yuk Foo
+  15. Play the Greatest Hits
+  16. Silk
+  17. Play It Out
+  18. Smile
+  19. Giant Peach
+  20. The Sofa
+
+Encore:
+  1. Don't Delete the Kisses
+👋 Closing client...
 ```
 
-#### Using Github Copilot
+### Using Github Copilot
 
 Github Copilot in the agent mode can include external tools defined in the `mcp.json` file. this file automatically generated by the `azd up` command. The generation can be manually triggered with the following command `azd hooks run preprovision`
 
@@ -152,7 +143,7 @@ Github Copilot in the agent mode can include external tools defined in the `mcp.
    Your browser does not support the video tag.
 </video>
 
-#### Using a Custom Agent
+### Using a Custom Agent (Azure Ai Foundry)
 
 MCP has designed to provides tools to any agent. This is a sample where `azure_ai_agent_mcp.py` uses the [Azure Agent Service] library to create an [Agent in Azure AI Foundry] configured to use the `SetlistFM MCP Server` as tool.
 
@@ -241,7 +232,7 @@ The overall concert length in terms of setlist size is consistent around the ran
 You can view detailed setlists for each show on their setlist.fm page: https://www.setlist.fm/setlists/wolf-alice-bdcd1c2.html
 ```
 
-### AI Foundry
+## AI Foundry
 
 once executed, it is possible to view the executed thread in the AI Foundry Portal http://ai.azure.com
 
@@ -249,7 +240,7 @@ once executed, it is possible to view the executed thread in the AI Foundry Port
 
 ![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_thread_info.png)
 
-### MCP Policies in APIM
+## MCP Policies in APIM
 
 As the MCP server has it own policy layer, there are several scenario that can be implemented. One of them is to set a rate limiting on the MCP side to protect the API side but it could be to manage authentication, authorization or to manipulate the output to add or remove content.
 

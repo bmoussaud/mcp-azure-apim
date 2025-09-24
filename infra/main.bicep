@@ -13,9 +13,6 @@ param aiFoundryLocation string = 'switzerlandnorth' //'westus' 'switzerlandnorth
 @description('Name of the resource group to deploy to.')
 param rootname string = 'mcp-azure-apim'
 
-@description('Credential end date/time for the application (defaults to two years from deployment time).')
-param credentialEndDateTime string = dateTimeAdd(utcNow(), 'P2Y')
-
 #disable-next-line no-unused-vars
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 
@@ -66,19 +63,10 @@ module logAnalyticsWorkspace 'modules/log-analytics-workspace.bicep' = {
   }
 }
 
-module eventHub 'modules/event-hub.bicep' = {
-  name: 'event-hub'
-  params: {
-    location: location
-    eventHubNamespaceName: '${rootname}-ehn-${uniqueString(resourceGroup().id)}'
-    eventHubName: '${rootname}-eh-${uniqueString(resourceGroup().id)}'
-  }
-}
-
 module aiFoundry 'modules/ai-foundry.bicep' = {
   name: 'aiFoundryModel'
   params: {
-    name: 'foundry-${rootname}-${aiFoundryLocation}-${environmentName}'
+    name: '${rootname}-${environmentName}'
     location: aiFoundryLocation
     modelDeploymentsParameters: [
       {
@@ -98,10 +86,9 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
   params: {
     location: aiFoundryLocation
     aiFoundryName: aiFoundry.outputs.aiFoundryName
-    aiProjectName: 'prj-${rootname}-${aiFoundryLocation}-${environmentName}'
+    aiProjectName: '${rootname}-${aiFoundryLocation}-${environmentName}'
     aiProjectFriendlyName: 'Setlistfy Project ${environmentName}'
     aiProjectDescription: 'Agents to help to manage setlist and music events.'
-
     applicationInsightsName: applicationInsights.outputs.name
 
     customKey: {
@@ -123,94 +110,13 @@ module apiManagement 'modules/api-management.bicep' = {
     skuCount: 1
     aiName: applicationInsights.outputs.aiName
   }
-  dependsOn: [
-    eventHub
-  ]
 }
 
-extension graphBeta
-
-var appName = '${rootname}-app'
-param today string = utcNow()
-resource application 'Microsoft.Graph/applications@beta' = {
-  uniqueName: appName
-  displayName: appName
-  signInAudience: 'AzureADMyOrg'
-  owners: {
-    relationships: [deployer().objectId]
+module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
+  name: 'setlist-mcp-app'
+  params: {
+    appName: 'setlist-mcp-app-${environmentName}'
   }
-  passwordCredentials: [
-    {
-      displayName: 'MyClientSecret'
-      endDateTime: dateTimeAdd(today, 'P1Y')
-    }
-  ]
-  api: {
-    oauth2PermissionScopes: [
-      {
-        id: guid(subscription().id, '${rootname}-app', 'access_as_user')
-        adminConsentDescription: 'Allows the app to access setlistfm as the signed-in user.'
-        adminConsentDisplayName: 'Access setlistfm as user'
-        isEnabled: true
-        type: 'User'
-        value: 'access_as_user'
-        userConsentDescription: 'Allow the application to access setlistfm on your behalf.'
-        userConsentDisplayName: 'Access setlistfm'
-      }
-    ]
-    preAuthorizedApplications: [
-      {
-        appId: '04b07795-8ddb-461a-bbee-02f9e1bf7b46' // Azure CLI
-        permissionIds: [
-          guid(subscription().id, '${rootname}-app', 'access_as_user')
-        ]
-      }
-    ]
-  }
-  /* sAMPLE
-  appRoles: [
-    {
-      id: guid(subscription().id, 'apim-auth-api', 'APIMAuth.Members')
-      displayName: 'APIMAuth.Members'
-      description: 'Allow users to access members permissions of API, whitch is: Can call "Get random color" operation'
-      value: 'APIMAuth.Members'
-      allowedMemberTypes: [
-        'User'
-        'Application'
-      ]
-      isEnabled: true
-    }
-    {
-      id: guid(subscription().id, 'apim-auth-api', 'APIMAuth.Admins')
-      displayName: 'APIMAuth.Admins'
-      description: 'Allow users to access admin permissions of API, whicth is can Post "Reset colors" operation'
-      value: 'APIMAuth.Admins'
-      allowedMemberTypes: [
-        'User'
-        'Application'
-      ]
-      isEnabled: true
-    }
-  ]
-    */
-}
-
-resource servicePrincipal 'Microsoft.Graph/servicePrincipals@beta' = {
-  appId: application.appId
-  accountEnabled: true
-  servicePrincipalType: 'Application'
-}
-
-resource applicationOveride 'Microsoft.Graph/applications@beta' = {
-  uniqueName: appName
-  displayName: appName
-  signInAudience: application.signInAudience
-  api: application.api
-
-  // Application ID URI from "Expose an API"
-  identifierUris: [
-    'api://${application.appId}'
-  ]
 }
 
 output PROJECT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
@@ -227,6 +133,7 @@ output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiMana
 output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
 output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
 output AZURE_AI_AGENT_API_VERSION string = '2024-02-15-preview'
-output OAUTH_APP_ID string = applicationOveride.appId
+
+output OAUTH_APP_ID string = setlistMcpApp.outputs.appId
 output OAUTH_TENANT_ID string = tenant().tenantId
-output OAUTH_CLIENT_SECRET string = application.passwordCredentials[0].secretText
+output OAUTH_CLIENT_SECRET string = setlistMcpApp.outputs.appSecret
