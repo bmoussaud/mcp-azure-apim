@@ -232,7 +232,7 @@ The overall concert length in terms of setlist size is consistent around the ran
 You can view detailed setlists for each show on their setlist.fm page: https://www.setlist.fm/setlists/wolf-alice-bdcd1c2.html
 ```
 
-## AI Foundry
+### AI Foundry
 
 once executed, it is possible to view the executed thread in the AI Foundry Portal http://ai.azure.com
 
@@ -240,36 +240,70 @@ once executed, it is possible to view the executed thread in the AI Foundry Port
 
 ![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_thread_info.png)
 
-## MCP Policies in APIM
+### MCP Policies in APIM (EntraID)
 
-As the MCP server has it own policy layer, there are several scenario that can be implemented. One of them is to set a rate limiting on the MCP side to protect the API side but it could be to manage authentication, authorization or to manipulate the output to add or remove content.
+As the MCP server has it own policy layer, there are several scenario that can be implemented.
+
+- to set a rate limiting on the MCP side to protect the API part
+- to manage inbound authentication, authorization (EntraID / OAuth2)
+- to manage outbund authentication, authorization to the backend api (Headers)
+- to update the request document or the response document
 
 The steps to define the MCP policy are:
 
 1. Open the azure portal and select the APIM instance
 1. Select the left side `MCP Servers` and open the `mcp-setlist-fm` server
-1. Open the policies and paste the following content in the inbound section or [src/apim/setlistfm/mcp-policy-setlistfm.xml](src/apim/setlistfm/mcp-policy-setlistfm.xml)
+1. Open the policies menu
+
+In this sample, an EntraID application has been defined to represent the the MCP Server. The client will perform an EntraId authentication process and the policy validates the provided token and then and header will be added to inject the `Ocp-Apim-Subscription-Key` value.
+
+It is implementing this APIM Pattern: [API Authentication with API Management (APIM) using APIM Policies with Entra ID and App Roles](https://github.com/microsoft/apim-auth-entraid-with-approles/blob/main/README.md)
+
+1. paste the following content [src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml](src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml)
 
 ```xml
- <rate-limit-by-key calls="10" renewal-period="30" counter-key="@(context.Request.Headers.GetValueOrDefault("mcp-api-key", "default-value"))" remaining-calls-variable-name="remainingCallsPerMCPAPI" />
+   .....
+   <inbound>
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized due Benoit APIM Policy" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
+            <openid-config url="https://login.microsoftonline.com/OAUTH_TENANT_ID/v2.0/.well-known/openid-configuration" />
+            <audiences>
+                <audience>api://OAUTH_APP_ID</audience>
+            </audiences>
+            <issuers>
+                <issuer>https://sts.windows.net/OAUTH_TENANT_ID/</issuer>
+            </issuers>
+        </validate-jwt>
+		<!-- Set the subscription key header for the backend service -->
+		<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
+			<value>SETLISTAPI_SUBSCRIPTION_KEY</value>
+		</set-header>
+		<base />
+	</inbound>
+   .....
+```
+
+If you run the previous python code, you'll get an `401` error
+
+```bash
+uv run mcp_client_rate.py
+🔗 Testing connection to https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp...
+❌ failure : Client error '401 Unauthorized' for url 'https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+👋 Closing client...
 ```
 
 Run the following test:
 
 ```bash
-uv run mcp_client_rate.py
+uv run mcp_client_entra_id.py  default_credential|client_secret|msal
 ```
 
-```
-🔗 Testing connection to https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp...
-❌ Failure : Client error '429 Too Many Requests' for url 'https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
-Traceback (most recent call last):
-  File "/workspaces/mcp-azure-apim/src/python/mcp_client_rate.py", line 41, in <module>
-    asyncio.run(main())
-    ~~~~~~~~~~~^^^^^^^^
-    ....
-```
+what ever the option, the output should be the same when using simple basic authentication using Header.
+The options are:
+
+- `default_credential` uses use the magic `DefaultAzureCredential` that support several Azure Authentication features. It re-use the `az login` or the `azd auth login`
+- `client_secret` uses the client_id, the client_secret and the tenant_id properties
+- `client_secret` uses the client_id, the client_secret and the tenant_id properties and MSAL (Microsoft Authentication Library) library. It’s a client SDK family (for Python, .NET, Java, JavaScript, etc.) that hides the wire details of standard identity protocols. Under the hood, MSAL talks to Microsoft Entra ID (formerly Azure AD) using OAuth 2.0 and OpenID Connect endpoints.
 
 ## Clean up
 
