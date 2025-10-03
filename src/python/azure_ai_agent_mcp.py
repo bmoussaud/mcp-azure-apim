@@ -70,6 +70,7 @@ async def azure_default_credential_token():
     credential = DefaultAzureCredential()
     scope = f"api://{os.getenv("OAUTH_APP_ID")}/.default"
     access_token = credential.get_token(scope)
+    print(f"Access token acquired: {access_token.token}")
     return access_token.token
 
 

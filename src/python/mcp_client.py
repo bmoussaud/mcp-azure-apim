@@ -39,9 +39,10 @@ async def main():
             print(render_artist_table(artist_payload))
 
             print("-------" * 18)
-            print("🔗 Get a list of setlists for Blondshell")
+            artistName = "The Weeknd"
+            print(f"🔗 Get a list of setlists for {artistName}")
             searchForSetlists = await client.call_tool(
-                "searchForSetlists", arguments={'artistName': 'Wolf Alice', 'p': 1}
+                "searchForSetlists", arguments={'artistName': artistName, 'p': 1}
             )
             setlist_payload = searchForSetlists.content[0].text if searchForSetlists.content else ""
             print(render_setlist(setlist_payload))

@@ -259,10 +259,9 @@ In this sample, an EntraID application has been defined to represent the the MCP
 
 It is implementing this APIM Pattern: [API Authentication with API Management (APIM) using APIM Policies with Entra ID and App Roles](https://github.com/microsoft/apim-auth-entraid-with-approles/blob/main/README.md)
 
-Doc: [Secure access to MCP servers in API Management / Token-based authentication (OAuth 2.1 with Microsoft Entra ID)]
-(https://learn.microsoft.com/en-us/azure/api-management/secure-mcp-servers#token-based-authentication-oauth-21-with-microsoft-entra-id)
+Doc: [Secure access to MCP servers in API Management / Token-based authentication (OAuth 2.1 with Microsoft Entra ID)](https://learn.microsoft.com/en-us/azure/api-management/secure-mcp-servers#token-based-authentication-oauth-21-with-microsoft-entra-id)
 
-1. paste the following content [src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml](src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml)
+1. paste the following content [src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml](src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml) (File generated during the execution of the `azd up` command, you can run the generation again using the `azd hooks run postprovision` command)
 
 ```xml
    .....
@@ -288,7 +287,7 @@ Doc: [Secure access to MCP servers in API Management / Token-based authenticatio
 If you run the previous python code, you'll get an `401` error
 
 ```bash
-uv run mcp_client_rate.py
+uv run mcp_client.py
 🔗 Testing connection to https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp...
 ❌ failure : Client error '401 Unauthorized' for url 'https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp'
 For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
@@ -318,3 +317,17 @@ oauth/entraid
 
 https://github.com/microsoft/apim-auth-entraid-with-approles/blob/main/README.md
 https://github.com/swgriffith/azure-guides/blob/master/aad-oauth2-on-behalf-of.md
+
+
+```xml
+<outbound>
+    <base />
+    <set-body>@{
+        // Remove control characters except tab (\u0009), newline (\u000A), carriage return (\u000D)
+        var body = context.Response.Body.As<string>();
+        var sanitized = new string(body.Where(c => c >= 32 || c == 9 || c == 10 || c == 13).ToArray());
+        return sanitized;
+    }</set-body>
+    <!-- ...other outbound policies... -->
+</outbound>
+```

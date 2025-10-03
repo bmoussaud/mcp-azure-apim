@@ -10,7 +10,7 @@
         <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized due Benoit APIM Policy" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
             <openid-config url="https://login.microsoftonline.com/be38c437-5790-4e3a-bb56-4811371e35ea/v2.0/.well-known/openid-configuration" />
             <audiences>
-                <audience>api://4103a948-e046-46f1-a16c-3e3b600e421f</audience>
+                <audience>api://97e1564f-56a8-47bb-a4e6-0eaf8063cb17</audience>
             </audiences>
             <issuers>
                 <issuer>https://sts.windows.net/be38c437-5790-4e3a-bb56-4811371e35ea/</issuer>
@@ -18,7 +18,7 @@
         </validate-jwt>
 		<!-- Set the subscription key header for the backend service -->
 		<set-header name="Ocp-Apim-Subscription-Key" exists-action="override">
-			<value>997ccc2e46bd4079a6397e27d1be73bf</value>
+			<value>689adb8838564271a84a362175729c4d</value>
 		</set-header>
 		<base />
 	</inbound>

@@ -53,6 +53,8 @@ async def msal_token():
 
 
 async def main(access_token: str):
+    print("👋 Starting client...")
+    print(f"Using access token: {access_token}")
     try:
         async with Client(transport=StreamableHttpTransport(
             SETLISTAPI_MCP_ENDPOINT,

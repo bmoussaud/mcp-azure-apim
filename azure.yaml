@@ -5,7 +5,8 @@ name: mcp-azure-apim
 provision:
   - name: "infra"
     template: "infra/main.bicep"
-    parameters: {}
+    parameters:
+      resourceGroupName: rg-mcp-azure-apim-${AZURE_ENV_NAME}
 
 hooks:
   postprovision:
