@@ -10,12 +10,13 @@ resource application 'Microsoft.Graph/applications@beta' = {
   owners: {
     relationships: [deployer().objectId]
   }
-  passwordCredentials: [
-    {
-      displayName: 'App Secret'
-      endDateTime: dateTimeAdd(today, 'P1Y')
-    }
-  ]
+  // // BadRequest: New password credentials must be generated using service actions. Graph client request id:
+  // passwordCredentials: [
+  //   {
+  //     displayName: 'default'
+  //     endDateTime: dateTimeAdd(today, 'P10D') // 10 days
+  //   }
+  // ]
   api: {
     oauth2PermissionScopes: [
       {
@@ -70,6 +71,9 @@ resource servicePrincipal 'Microsoft.Graph/servicePrincipals@beta' = {
   appId: application.appId
   accountEnabled: true
   servicePrincipalType: 'Application'
+  owners: {
+    relationships: [deployer().objectId]
+  }
 }
 
 resource applicationOveride 'Microsoft.Graph/applications@beta' = {
@@ -87,4 +91,5 @@ resource applicationOveride 'Microsoft.Graph/applications@beta' = {
 output appId string = application.appId
 output appObjectId string = application.id
 output servicePrincipalId string = servicePrincipal.id
-output appSecret string = application.passwordCredentials[0].secretText
+// Note: App secret must be created manually or via deployment script due to Graph API restrictions
+// output appSecret string = 'Create manually via Azure CLI: az ad app credential reset --id ${application.appId}'

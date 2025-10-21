@@ -3,10 +3,10 @@
         <base />
         <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" allow-private-response-caching="true" must-revalidate="false" downstream-caching-type="none" />
         <set-header name="Authorization" exists-action="override">
-            <value>Bearer {{setlisfm-api-key}}</value>
+            <value>Bearer {{setlistfm-api-key}}</value>
         </set-header>
         <set-header name="x-api-key" exists-action="override">
-            <value>{{setlisfm-api-key}}</value>
+            <value>{{setlistfm-api-key}}</value>
         </set-header>
         <set-header name="Accept" exists-action="override">
             <value>application/json</value>

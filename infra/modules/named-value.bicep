@@ -9,12 +9,6 @@
 //    PARAMETERS
 // ------------------------------
 
-@description('Location to be used for resources. Defaults to the resource group location')
-param location string = resourceGroup().location
-
-@description('The unique suffix to append. Defaults to a unique string based on subscription and resource group IDs.')
-param resourceSuffix string = uniqueString(subscription().id, resourceGroup().id)
-
 @description('The name of the API Management service.')
 param apimName string
 

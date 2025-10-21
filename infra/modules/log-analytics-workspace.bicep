@@ -5,9 +5,12 @@ param logAnalyticsName string
 @maxValue(730)
 param retentionInDays int = 90
 
-resource logAnalyticcsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+param tags object = {}
+
+resource logAnalyticcsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
   name: logAnalyticsName
   location: location
+  tags:tags
   properties: {
     sku: {
       name: 'PerGB2018'

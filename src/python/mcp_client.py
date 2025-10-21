@@ -53,6 +53,5 @@ async def main():
         print("👋 Closing client...")
         await client.close()
 
-
 if __name__ == "__main__":
     asyncio.run(main())

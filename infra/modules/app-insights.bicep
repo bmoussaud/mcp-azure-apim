@@ -5,14 +5,17 @@ param location string
 
 var responseAlertName = 'ResponseTime-${toLower(applicationInsightsName)}'
 
-resource workspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = {
+param tags object = {}
+
+resource workspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' existing = {
   name: workspaceName
 }
 
-resource applicationInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
+resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: applicationInsightsName
   location: location
   kind: 'web'
+  tags: tags
   properties: {
     Application_Type: 'web'
     WorkspaceResourceId: workspace.id
@@ -52,7 +55,7 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
   }
 }
 
-resource emailActionGroup 'microsoft.insights/actionGroups@2019-06-01' = {
+resource emailActionGroup 'Microsoft.Insights/actionGroups@2024-10-01-preview' = {
   name: 'emailActionGroup'
   location: 'global'
   properties: {

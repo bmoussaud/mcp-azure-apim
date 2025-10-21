@@ -19,7 +19,6 @@ uses the mcp tool to connect to an mcp server.
 
 TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Blondshell?"
 
-
 async def handle_intermediate_messages(message: ChatMessageContent) -> None:
     for item in message.items or []:
         # traceback.print_stack()

@@ -1,16 +1,21 @@
-// Module: AI Foundry Model (placeholder)
 param name string
 param location string
 
 @description('Model deployments for OpenAI')
 param modelDeploymentsParameters array
 
-resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
+param tags object = {}
+
+@description('Optional: Role Definition ID (GUID) for the Azure AI User (or equivalent) role. Leave empty to skip automatic role assignment. Example (preview – verify in your tenant): Azure AI User role id.')
+param azureAiUserRoleDefinitionId string = ''
+
+// Generate a deterministic GUID for the role assignment (only if a role id is provided)
+var azureAiUserRoleAssignmentName = empty(azureAiUserRoleDefinitionId) ? '' : guid(name, 'azure-ai-user', deployer().objectId)
+
+resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-07-01-preview' = {
   name: name
   location: location
-  tags: {
-    'azd-service-name': 'ai-foundry'
-  }
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
@@ -26,26 +31,25 @@ resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
     publicNetworkAccess: 'Enabled'
     //disableLocalAuth: true
   }
-}
 
-@batchSize(1)
-resource modelDeployments 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [
-  for deployment in modelDeploymentsParameters: {
-    parent: aiFoundry
-    name: deployment.name
-    sku: {
-      capacity: deployment.capacity
-      name: deployment.deployment
-    }
-    properties: {
-      model: {
-        format: deployment.format
-        name: deployment.model
-        version: deployment.version
+  @batchSize(1)
+  resource modelDeployments 'deployments' = [
+    for deployment in modelDeploymentsParameters: {
+      name: deployment.name
+      sku: {
+        capacity: deployment.capacity
+        name: deployment.deployment
+      }
+      properties: {
+        model: {
+          format: deployment.format
+          name: deployment.model
+          version: deployment.version
+        }
       }
     }
-  }
-]
+  ]
+}
 
 output aiFoundryId string = aiFoundry.id
 
@@ -55,4 +59,5 @@ output aiFoundryEndpoint string = aiFoundry.properties.endpoint
 output aiFoundryLocation string = aiFoundry.location
 output aiFoundryInferenceEndpoint string = '${aiFoundry.properties.endpoints['Azure AI Model Inference API']}models'
 output defaultModelDeploymentName string = modelDeploymentsParameters[0].name
-output aiFoundryInferenceKey string = listKeys(aiFoundry.id, '2025-04-01-preview').key1
+output aiFoundryInferenceKey string = aiFoundry.listKeys().key1
+// Output the role assignment name if created (empty string otherwise)

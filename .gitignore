@@ -21,3 +21,6 @@ __pycache__
 .vscode/claude.json
 .cache
 .vscode/mcp.json
+
+# file generated
+src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml

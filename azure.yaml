@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
 name: mcp-azure-apim
+resourceGroup: rg-mcp-azure-apim-${AZURE_ENV_NAME}
 
-provision:
-  - name: "infra"
-    template: "infra/main.bicep"
-    parameters:
-      resourceGroupName: rg-mcp-azure-apim-${AZURE_ENV_NAME}
+infra:
+  provider: bicep
+  path: infra
+  module: main
 
 hooks:
   postprovision:
@@ -16,3 +16,5 @@ hooks:
     # Execute the script to generate MCP Entra ID policy after infra is provisioned.
     - shell: sh
       run: ./hooks/gen_mcp_entraid_policy.sh
+    - shell: sh
+      run: ./hooks/gen_python_env.sh
