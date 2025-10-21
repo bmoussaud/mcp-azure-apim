@@ -73,6 +73,7 @@ async def azure_default_credential_token():
     print(f"Access token acquired: {access_token.token}")
     return access_token.token
 
+
 async def main() -> None:
     with project_client:
         agents_client = project_client.agents
