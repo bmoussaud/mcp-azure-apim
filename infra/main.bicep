@@ -6,8 +6,11 @@ targetScope = 'resourceGroup'
 param environmentName string
 
 @minLength(1)
-@description('Primary location for all resources')
+@description('Primary location for all resources but AI Foundry.')
 param location string
+
+@description('Location for AI Foundry resources.')
+param aiFoundryLocation string
 
 #disable-next-line no-unused-vars
 var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
@@ -69,7 +72,7 @@ module aiFoundry 'modules/ai-foundry.bicep' = {
   name: 'aiFoundryModel'
   params: {
     name: 'foundry-${resourceToken}'
-    location: location
+    location: aiFoundryLocation
     tags: tags
     modelDeploymentsParameters: [
       {
@@ -87,7 +90,7 @@ module aiFoundry 'modules/ai-foundry.bicep' = {
 module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
   name: 'aiFoundryProject'
   params: {
-    location: location
+    location: aiFoundryLocation
     aiFoundryName: aiFoundry.outputs.aiFoundryName
     aiProjectName: environmentName
     aiProjectFriendlyName: 'Setlistfy Project ${environmentName}'
@@ -119,7 +122,7 @@ module apiManagement 'modules/api-management.bicep' = {
 module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   name: 'setlist-mcp-app'
   params: {
-    appName: 'setlist-mcp-app-${environmentName}'
+    appName: 'setlist-mcp-app-${resourceToken}'
   }
 }
 
