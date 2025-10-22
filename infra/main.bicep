@@ -1,3 +1,5 @@
+targetScope = 'resourceGroup'
+
 @minLength(1)
 @maxLength(64)
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
@@ -8,7 +10,7 @@ param environmentName string
 param location string
 
 #disable-next-line no-unused-vars
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
 
 var tags = {
   'azd-env-name': environmentName
