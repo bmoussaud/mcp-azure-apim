@@ -1,22 +1,25 @@
+targetScope = 'resourceGroup'
+
 @minLength(1)
 @maxLength(64)
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
 param environmentName string
 
 @minLength(1)
-@description('Primary location for all resources')
-param location string = 'francecentral'
+@description('Primary location for all resources but AI Foundry.')
+param location string
 
 @description('Location for AI Foundry resources.')
-param aiFoundryLocation string = 'switzerlandnorth' //'westus' 'switzerlandnorth' swedencentral
-
-@description('Name of the resource group to deploy to.')
-param rootname string = 'mcp-azure-apim'
+param aiFoundryLocation string
 
 #disable-next-line no-unused-vars
-var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
+var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
 
-module setlistFmApi 'modules/apim/v1/api.bicep' = {
+var tags = {
+  'azd-env-name': environmentName
+}
+
+module setlistFmApi 'modules/api.bicep' = {
   name: 'setlistfm-api'
   params: {
     apimName: apiManagement.outputs.name
@@ -31,16 +34,16 @@ module setlistFmApi 'modules/apim/v1/api.bicep' = {
       subscriptionRequired: true
       tags: ['setlistfm', 'api', 'music', 'setlist']
       policyXml: loadTextContent('../src/apim/setlistfm/policy-setlistfm.xml')
-      openApiJson: loadTextContent('../src/apim/setlistfm/openapi-setlistfm.json') // Ensure this file exists at the specified path or update the path accordingly
+      value: 'https://api.setlist.fm/docs/1.0/ui/swagger.json'
     }
   }
 }
 
-module setlistfmApiKeyNV 'modules/apim/v1/named-value.bicep' = {
+module setlistfmApiKeyNV 'modules/named-value.bicep' = {
   name: 'setlistfm-api-key-nv'
   params: {
     apimName: apiManagement.outputs.name
-    namedValueName: 'setlisfm-api-key'
+    namedValueName: 'setlistfm-api-key'
     namedValueValue: '4b15bd76-3455-4f06-b606-293848fbad49'
     namedValueIsSecret: true
   }
@@ -51,7 +54,8 @@ module applicationInsights 'modules/app-insights.bicep' = {
   params: {
     location: location
     workspaceName: logAnalyticsWorkspace.outputs.name
-    applicationInsightsName: '${rootname}-app-insights'
+    applicationInsightsName: 'app-insights-${resourceToken}'
+    tags: tags
   }
 }
 
@@ -59,18 +63,20 @@ module logAnalyticsWorkspace 'modules/log-analytics-workspace.bicep' = {
   name: 'log-analytics-workspace'
   params: {
     location: location
-    logAnalyticsName: '${rootname}-log-analytics'
+    logAnalyticsName: 'log-analytics-${resourceToken}'
+    tags: tags
   }
 }
 
 module aiFoundry 'modules/ai-foundry.bicep' = {
   name: 'aiFoundryModel'
   params: {
-    name: '${rootname}-${environmentName}'
+    name: 'foundry-${resourceToken}'
     location: aiFoundryLocation
+    tags: tags
     modelDeploymentsParameters: [
       {
-        name: '${rootname}-gpt-4.1-mini'
+        name: 'gpt-4.1-mini'
         model: 'gpt-4.1-mini'
         capacity: 1000
         deployment: 'GlobalStandard'
@@ -86,7 +92,7 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
   params: {
     location: aiFoundryLocation
     aiFoundryName: aiFoundry.outputs.aiFoundryName
-    aiProjectName: '${rootname}-${aiFoundryLocation}-${environmentName}'
+    aiProjectName: environmentName
     aiProjectFriendlyName: 'Setlistfy Project ${environmentName}'
     aiProjectDescription: 'Agents to help to manage setlist and music events.'
     applicationInsightsName: applicationInsights.outputs.name
@@ -103,9 +109,10 @@ module apiManagement 'modules/api-management.bicep' = {
   name: 'api-management'
   params: {
     location: location
-    serviceName: '${rootname}-api-management-${environmentName}'
+    tags: tags
+    serviceName: 'apim-${resourceToken}'
     publisherName: 'Setlistfy Apps'
-    publisherEmail: '${rootname}@contososuites.com'
+    publisherEmail: '${environmentName}@contososuites.com'
     skuName: 'Basicv2'
     skuCount: 1
     aiName: applicationInsights.outputs.aiName
@@ -115,7 +122,7 @@ module apiManagement 'modules/api-management.bicep' = {
 module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   name: 'setlist-mcp-app'
   params: {
-    appName: 'setlist-mcp-app-${environmentName}'
+    appName: 'setlist-mcp-app-${resourceToken}'
   }
 }
 
@@ -132,8 +139,7 @@ output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPri
 output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}-mcp/mcp'
 output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
 output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
-output AZURE_AI_AGENT_API_VERSION string = '2024-02-15-preview'
+// output AZURE_AI_AGENT_API_VERSION string = '2024-02-15-preview'
 
 output OAUTH_APP_ID string = setlistMcpApp.outputs.appId
 output OAUTH_TENANT_ID string = tenant().tenantId
-output OAUTH_CLIENT_SECRET string = setlistMcpApp.outputs.appSecret

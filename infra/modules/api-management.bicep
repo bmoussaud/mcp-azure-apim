@@ -19,11 +19,13 @@ param skuName string
 @description('The number of worker instances of your API Management service that should be provisioned.')
 param skuCount int
 
-resource aiParent 'Microsoft.Insights/components@2020-02-02-preview' existing = {
+param tags object = {}
+
+resource aiParent 'Microsoft.Insights/components@2020-02-02' existing = {
   name: aiName
 }
 
-resource apiManagementService 'Microsoft.ApiManagement/service@2023-03-01-preview' = {
+resource apiManagementService 'Microsoft.ApiManagement/service@2024-10-01-preview' = {
   name: serviceName
   location: location
   sku: {
@@ -33,82 +35,62 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2023-03-01-previe
   identity: {
     type: 'SystemAssigned'
   }
+  tags: tags
   properties: {
     publisherName: publisherName
     publisherEmail: publisherEmail
   }
-}
 
-resource aiLogger 'Microsoft.ApiManagement/service/loggers@2022-08-01' = {
-  name: 'apim-logger'
-  parent: apiManagementService
-  properties: {
-    loggerType: 'applicationInsights'
-    description: 'Application Insights logger'
-    credentials: {
-      instrumentationKey: aiParent.properties.InstrumentationKey
+  resource aiLogger 'loggers' = {
+    name: 'apim-logger'
+    properties: {
+      loggerType: 'applicationInsights'
+      description: 'Application Insights logger'
+      credentials: {
+        instrumentationKey: aiParent.properties.InstrumentationKey
+      }
     }
   }
-}
-//define a new product 'Starter' with a subscription required
-resource starterProduct 'Microsoft.ApiManagement/service/products@2023-03-01-preview' = {
-  name: 'Starter'
-  parent: apiManagementService
-  properties: {
-    displayName: 'Starter'
-    description: 'Starter product'
-    terms: 'Subscription is required for this product.'
-  }
-}
 
-//define a new Product 'Unlimited' with no subscription required
-resource unlimitedProduct 'Microsoft.ApiManagement/service/products@2023-03-01-preview' = {
-  name: 'Unlimited'
-  parent: apiManagementService
-  properties: {
-    displayName: 'Unlimited'
-    description: 'Unlimited product'
-    terms: 'No subscription required for this product.'
+  //define a new product 'Starter' with a subscription required
+  resource starterProduct 'products' = {
+    name: 'Starter'
+    properties: {
+      displayName: 'Starter'
+      description: 'Starter product'
+      terms: 'Subscription is required for this product.'
+    }
   }
-}
 
-/*
-resource adminUser 'Microsoft.ApiManagement/service/users/subscriptions@2023-05-01-preview' existing = {
-  name: '/users/1'
-}
-
-resource apiAdminSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-03-01-preview' = {
-  name: 'azure-rambi-admin-sub'
-  parent: apiManagementService
-  properties: {
-    allowTracing: false
-    displayName: 'azure-rambi-admin-sub'
-    ownerId: adminUser.id
-    state: 'active'
-    scope: '/apis'
+  //define a new Product 'Unlimited' with no subscription required
+  resource unlimitedProduct 'products' = {
+    name: 'Unlimited'
+    properties: {
+      displayName: 'Unlimited'
+      description: 'Unlimited product'
+      terms: 'No subscription required for this product.'
+    }
   }
-}
-  */
-resource allAPIsSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-03-01-preview' = {
-  name: 'allAPIs'
-  parent: apiManagementService
-  properties: {
-    allowTracing: false
-    displayName: 'Built-in all-access subscription'
-    //ownerId: 
-    state: 'active'
-    scope: '/apis'
-  }
-}
 
-//Allow the customs metrics at the application insight level.
-//https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-app-insights?tabs=rest#emit-custom-metrics
-resource applicationinsights 'Microsoft.ApiManagement/service/diagnostics@2023-03-01-preview' = {
-  name: 'applicationinsights'
-  parent: apiManagementService
-  properties: {
-    metrics: true
-    loggerId: aiLogger.id
+  resource allAPIsSubscription 'subscriptions' = {
+    name: 'allAPIs'
+    properties: {
+      allowTracing: false
+      displayName: 'Built-in all-access subscription'
+      //ownerId:
+      state: 'active'
+      scope: '/apis'
+    }
+  }
+
+  //Allow the customs metrics at the application insight level.
+  //https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-app-insights?tabs=rest#emit-custom-metrics
+  resource applicationinsights 'diagnostics' = {
+    name: 'applicationinsights'
+    properties: {
+      metrics: true
+      loggerId: aiLogger.id
+    }
   }
 }
 
@@ -117,7 +99,7 @@ output apiManagementIdentityPrincipalId string = apiManagementService.identity.p
 output name string = apiManagementService.name
 output apiManagementProxyHostName string = apiManagementService.properties.hostnameConfigurations[0].hostName
 //output apiManagementDeveloperPortalHostName string = replace(apiManagementService.properties.developerPortalUrl, 'https://', '')
-output aiLoggerId string = aiLogger.id
-output aiLoggerName string = aiLogger.name
+output aiLoggerId string = apiManagementService::aiLogger.id
+output aiLoggerName string = apiManagementService::aiLogger.name
 output apimId string = apiManagementService.id
-output apiAdminSubscriptionKey string = allAPIsSubscription.listSecrets().primaryKey
+output apiAdminSubscriptionKey string = apiManagementService::allAPIsSubscription.listSecrets().primaryKey

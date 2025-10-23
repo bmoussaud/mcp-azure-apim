@@ -1,140 +1,209 @@
-param apimName string
-param apiName string
-param apiPath string
-param openApiJson string
-param openApiXml string
-param serviceUrlPrimary string
+/**
+ * @module api-v1
+ * @description This module defines the API resources using Bicep.
+ * It includes configurations for creating and managing APIs, products, and policies.
+ */
 
-param aiLoggerName string
+// ------------------------------
+//    PARAMETERS
+// ------------------------------
 
-resource parentAPIM 'Microsoft.ApiManagement/service@2023-03-01-preview' existing = {
+@description('The unique suffix to append. Defaults to a unique string based on subscription and resource group IDs.')
+param resourceSuffix string = uniqueString(subscription().id, resourceGroup().id)
+
+@description('The name of the API Management instance. Defaults to "apim-<resourceSuffix>".')
+param apimName string = 'apim-${resourceSuffix}'
+
+@description('Name of the APIM Logger')
+param apimLoggerName string = 'apim-logger'
+
+@description('The instrumentation key for Application Insights')
+param appInsightsInstrumentationKey string = ''
+
+@description('The resource ID for Application Insights')
+param appInsightsId string = ''
+
+@description('Array of product names to associate this API with. If empty, no product associations will be created.')
+param productNames array = []
+
+param api object = {}
+
+// ------------------------------
+//    VARIABLES
+// ------------------------------
+
+var logSettings = {
+  headers: ['Content-type', 'User-agent']
+  body: { bytes: 8192 }
+}
+
+var apiSubscriptionRequired = api.?subscriptionRequired ?? true
+
+// ------------------------------
+//    RESOURCES
+// ------------------------------
+
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service
+resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimName
 }
 
-resource aiLogger 'Microsoft.ApiManagement/service/loggers@2022-08-01' existing = {
-  name: aiLoggerName
-  parent: parentAPIM
-}
-
-resource starterProduct 'Microsoft.ApiManagement/service/products@2023-03-01-preview' existing = {
-  name: 'Starter'
-  parent: parentAPIM
-}
-
-resource unlimitedProduct 'Microsoft.ApiManagement/service/products@2023-03-01-preview' existing = {
-  name: 'Unlimited'
-  parent: parentAPIM
-}
-
-resource primarybackend 'Microsoft.ApiManagement/service/backends@2023-03-01-preview' = {
-  name: '${apiName}-backend'
-  parent: parentAPIM
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis
+resource apimApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
+  name: api.name
+  parent: apimService
   properties: {
-    description: '$apiName endpoint'
-    protocol: 'http'
-    url: serviceUrlPrimary
-  }
-}
-
-resource api 'Microsoft.ApiManagement/service/apis@2023-03-01-preview' = {
-  parent: parentAPIM
-  name: apiName
-  properties: {
-    format: 'openapi+json-link'
-    value: openApiJson
-    path: apiPath
+    apiType: 'http'
+    description: api.description
+    displayName: api.displayName
+    path: api.path
     protocols: [
       'https'
     ]
+    serviceUrl: contains(api, 'serviceUrl') && !empty(api.serviceUrl) ? api.serviceUrl : null
     subscriptionKeyParameterNames: {
-      header: 'api-key'
-      query: 'api-key'
+      header: 'Ocp-Apim-Subscription-Key'
+      query: 'Ocp-Apim-Subscription-Key'
     }
-    subscriptionRequired: true
+    subscriptionRequired: apiSubscriptionRequired
+    type: 'http'
+    format: 'swagger-link-json'
+    value: api.value
   }
 }
 
-resource APIunlimitedProduct 'Microsoft.ApiManagement/service/products/apis@2023-05-01-preview' = {
-  name: apiName
-  parent: unlimitedProduct
-  dependsOn: [api]
-}
+// Create APIM tag resources for each tag in api.tags (array or object)
+// Only support array of strings for tags (APIM tags)
+var tagList = contains(api, 'tags') && !empty(api.tags) ? api.tags : []
 
-resource APIstarterProduct 'Microsoft.ApiManagement/service/products/apis@2023-05-01-preview' = {
-  name: apiName
-  parent: starterProduct
-  dependsOn: [api]
-}
+resource apimTags 'Microsoft.ApiManagement/service/tags@2024-06-01-preview' = [
+  for tag in tagList: {
+    name: tag
+    parent: apimService
+    properties: {
+      displayName: tag
+    }
+  }
+]
 
-resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = {
-  parent: api
+resource apimApiTags 'Microsoft.ApiManagement/service/apis/tags@2024-06-01-preview' = [
+  for tag in tagList: {
+    name: tag
+    parent: apimApi
+  }
+]
+
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/policies
+resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-preview' = if (contains(api, 'policyXml') && !empty(api.policyXml)) {
   name: 'policy'
+  parent: apimApi
   properties: {
-    format: 'xml-link'
-    value: openApiXml
+    format: 'rawxml' // only use 'rawxml' for policies as it's what APIM expects and means we don't need to escape XML characters
+    value: api.policyXml
   }
 }
 
-resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = {
-  parent: api
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/subscriptions
+resource apiSubscription 'Microsoft.ApiManagement/service/subscriptions@2024-05-01' = if (apiSubscriptionRequired) {
+  name: 'api-${toLower(api.name)}'
+  parent: apimService
+  properties: {
+    allowTracing: true
+    displayName: 'Subscription for ${api.displayName} API'
+    scope: '/apis/${api.name}'
+    state: 'active'
+  }
+  dependsOn: [
+    apimApi
+  ]
+}
+
+// Create diagnostics only if we have an App Insights ID and instrumentation key.
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/apis/diagnostics
+resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-06-01-preview' = if (!empty(appInsightsId) && !empty(appInsightsInstrumentationKey)) {
   name: 'applicationinsights'
+  parent: apimApi
   properties: {
     alwaysLog: 'allErrors'
-    loggerId: aiLogger.id
-    //metrics: true + verbosity: information equals Support custom metrics <<<< not enough information :(
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: resourceId(resourceGroup().name, 'Microsoft.ApiManagement/service/loggers', apimName, apimLoggerName)
     metrics: true
-    verbosity: 'information'
+    verbosity: 'verbose'
     sampling: {
       samplingType: 'fixed'
       percentage: 100
     }
     frontend: {
-      request: {
-        headers: []
-        body: {
-          bytes: 0
-        }
-      }
-      response: {
-        headers: []
-        body: {
-          bytes: 0
-        }
-      }
+      request: logSettings
+      response: logSettings
     }
     backend: {
-      request: {
-        headers: []
-        body: {
-          bytes: 0
-        }
-      }
-      response: {
-        headers: []
-        body: {
-          bytes: 0
-        }
-      }
+      request: logSettings
+      response: logSettings
     }
   }
 }
 
-//resource adminUser 'Microsoft.ApiManagement/service/users/subscriptions@2023-05-01-preview' existing = {
-//  name: '/users/1'
-//}
-
-/*
-resource apiSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-03-01-preview' = {
-  name: apiSubscriptionName
-  parent: parentAPIM
-  properties: {
-    allowTracing: false
-    displayName: apiSubscriptionName
-    ownerId: adminUser.id
-    scope: api.id
-    state: 'active'
+// Product associations are handled directly in this module with proper dependency management // to prevent race conditions while keeping the architecture simple
+// Reference existing products for association (with explicit dependency timing)
+resource apimProducts 'Microsoft.ApiManagement/service/products@2024-06-01-preview' existing = [
+  for productName in productNames: {
+    name: productName
+    parent: apimService
   }
-}
-*/
+]
 
-//output apiSubscription string = apiSubscription.listSecrets().primaryKey
+// Create product-API associations with proper dependency management
+// https://learn.microsoft.com/azure/templates/microsoft.apimanagement/service/products/apis
+resource apiProductAssociation 'Microsoft.ApiManagement/service/products/apis@2024-06-01-preview' = [
+  for (productName, index) in productNames: {
+    name: apimApi.name
+    parent: apimProducts[index]
+    dependsOn: [
+      apimProducts[index] // Ensure the specific product exists and is ready
+      apiPolicy // Ensure API policy is applied if present
+      //apiOperation // Ensure all operations are created
+      //apiOperationPolicy // Ensure all operation policies are applied
+      apiDiagnostics // Ensure diagnostics are configured if present
+    ]
+  }
+]
+
+// ------------------------------
+//    OUTPUTS
+// ------------------------------
+
+@description('The resource ID of the created API.')
+output apiResourceId string = apimApi.id
+
+@description('The name of the created API.')
+output apiName string = apimApi.name
+
+@description('The display name of the created API.')
+output apiDisplayName string = apimApi.properties.displayName
+
+@description('The path of the created API.')
+output apiPath string = apimApi.properties.path
+
+@description('Array of product names this API is associated with.')
+output associatedProducts array = productNames
+
+@description('Number of products this API is associated with.')
+output productAssociationCount int = length(productNames)
+
+@description('The resource ID of the product subscription, if created.')
+output subscriptionResourceId string = apiSubscriptionRequired ? apiSubscription.id : ''
+
+@description('The name of the product subscription, if created.')
+output subscriptionName string = apiSubscriptionRequired ? apiSubscription.name : ''
+
+@description('The primary key of the product subscription, if created.')
+output subscriptionPrimaryKey string = apiSubscriptionRequired
+  ? apiSubscription.listSecrets().primaryKey //listSecrets('${apimService.id}/subscriptions/api-${toLower(api.name)}', '2024-05-01').primaryKey
+  : ''
+
+@description('The secondary key of the product subscription, if created.')
+output subscriptionSecondaryKey string = apiSubscriptionRequired
+  ? apiSubscription.listSecrets().secondaryKey //listSecrets('${apimService.id}/subscriptions/api-${toLower(api.name)}', '2024-05-01').secondaryKey
+  : ''
