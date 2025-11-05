@@ -1,7 +1,9 @@
 <policies>
     <inbound>
         <base />
+        <!--
         <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" allow-private-response-caching="true" must-revalidate="false" downstream-caching-type="none" />
+        -->
         <set-header name="Authorization" exists-action="override">
             <value>Bearer {{setlistfm-api-key}}</value>
         </set-header>
@@ -23,7 +25,7 @@
     </backend>
     <outbound>
         <base />
-        <cache-store duration="600"  />
+        <!--<cache-store duration="600"  />-->
     </outbound>
     <on-error>
         <base />

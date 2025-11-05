@@ -136,6 +136,7 @@ output AZURE_LOG_LEVEL string = 'DEBUG'
 output APIM_NAME string = apiManagement.outputs.name
 output SETLISTAPI_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}'
 output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPrimaryKey
+output SETLISTAPI_API_ID string = setlistFmApi.outputs.apiResourceId
 output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}-mcp/mcp'
 output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
 output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
@@ -143,3 +144,4 @@ output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultMo
 
 output OAUTH_APP_ID string = setlistMcpApp.outputs.appId
 output OAUTH_TENANT_ID string = tenant().tenantId
+output SUBSCRIPTION_ID string = subscription().subscriptionId
