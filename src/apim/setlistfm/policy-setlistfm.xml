@@ -1,9 +1,15 @@
 <policies>
     <inbound>
         <base />
+        <trace source="inbound-start">
+            <message>@("Inbound processing started for request: " + context.RequestId + " | Method: " + context.Request.Method + " | URL: " + context.Request.Url.ToString())</message>
+        </trace>
         <!--
         <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" allow-private-response-caching="true" must-revalidate="false" downstream-caching-type="none" />
         -->
+        <trace source="auth-setup">
+            <message>@("Setting up authentication headers for setlist.fm API")</message>
+        </trace>
         <set-header name="Authorization" exists-action="override">
             <value>Bearer {{setlistfm-api-key}}</value>
         </set-header>
@@ -17,17 +23,38 @@
             <value>setlistfm-mcp/1.0</value>
         </set-header>
         <trace source="request-headers">
-            <message>@(string.Join("\n", context.Request.Headers.Select(h => h.Key + ": " + string.Join(", ", h.Value))))</message>
+            <message>@("Request Headers: " + string.Join(" | ", context.Request.Headers.Select(h => h.Key + "=" + string.Join(",", h.Value))))</message>
+        </trace>
+        <trace source="inbound-complete">
+            <message>@("Inbound processing completed, forwarding to backend")</message>
         </trace>
     </inbound>
     <backend>
+        <trace source="backend-start">
+            <message>@("Backend processing started - forwarding to: " + context.Request.Url.ToString())</message>
+        </trace>
         <base />
+        <trace source="backend-complete">
+            <message>@("Backend processing completed - received response with status: " + context.Response.StatusCode)</message>
+        </trace>
     </backend>
     <outbound>
+        <trace source="outbound-start">
+            <message>@("Outbound processing started - Response Status: " + context.Response.StatusCode + " | Content-Type: " + (context.Response.Headers.ContainsKey("Content-Type") ? string.Join(",", context.Response.Headers["Content-Type"]) : "N/A"))</message>
+        </trace>
         <base />
         <!--<cache-store duration="600"  />-->
+        <trace source="response-headers">
+            <message>@("Response Headers: " + string.Join(" | ", context.Response.Headers.Select(h => h.Key + "=" + string.Join(",", h.Value))))</message>
+        </trace>
+        <trace source="outbound-complete">
+            <message>@("Outbound processing completed for request: " + context.RequestId)</message>
+        </trace>
     </outbound>
     <on-error>
+        <trace source="error-occurred">
+            <message>@("ERROR in request " + context.RequestId + " | Error: " + context.LastError.Message + " | Source: " + context.LastError.Source + " | Reason: " + context.LastError.Reason)</message>
+        </trace>
         <base />
     </on-error>
 </policies>
