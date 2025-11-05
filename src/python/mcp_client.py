@@ -13,7 +13,6 @@ SETLISTAPI_SUBSCRIPTION_KEY = str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))
 # SETLISTAPI_MCP_ENDPOINT = "https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp"
 print(f"🔗 Testing connection to {SETLISTAPI_MCP_ENDPOINT}...")
 
-
 async def main():
     try:
         async with Client(transport=StreamableHttpTransport(
@@ -39,7 +38,7 @@ async def main():
             print(render_artist_table(artist_payload))
 
             print("-------" * 18)
-            artistName = "The Weeknd"
+            artistName = "Linkin Park"
             print(f"🔗 Get a list of setlists for {artistName}")
             searchForSetlists = await client.call_tool(
                 "searchForSetlists", arguments={'artistName': artistName, 'p': 1}

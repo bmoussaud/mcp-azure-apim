@@ -2,14 +2,11 @@
     <inbound>
         <base />
         <trace source="inbound-start">
-            <message>@("Inbound processing started for request: " + context.RequestId + " | Method: " + context.Request.Method + " | URL: " + context.Request.Url.ToString())</message>
+            <message>@("API Inbound processing started for request: " + context.RequestId + " | Method: " + context.Request.Method + " | URL: " + context.Request.Url.ToString())</message>
         </trace>
         <!--
         <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" allow-private-response-caching="true" must-revalidate="false" downstream-caching-type="none" />
         -->
-        <trace source="auth-setup">
-            <message>@("Setting up authentication headers for setlist.fm API")</message>
-        </trace>
         <set-header name="Authorization" exists-action="override">
             <value>Bearer {{setlistfm-api-key}}</value>
         </set-header>
@@ -22,39 +19,45 @@
         <set-header name="User-Agent" exists-action="override">
             <value>setlistfm-mcp/1.0</value>
         </set-header>
-        <trace source="request-headers">
-            <message>@("Request Headers: " + string.Join(" | ", context.Request.Headers.Select(h => h.Key + "=" + string.Join(",", h.Value))))</message>
-        </trace>
-        <trace source="inbound-complete">
-            <message>@("Inbound processing completed, forwarding to backend")</message>
-        </trace>
+        <set-variable name="requestUrl" value="@{
+            return context.Request.Url != null ? context.Request.Url.ToString() : "";
+        }" />
+        <set-variable name="requestBody" value="@{
+            return context.Request.Body != null ? context.Request.Body.As<string>(preserveContent: true) : "";
+        }" />
     </inbound>
     <backend>
-        <trace source="backend-start">
-            <message>@("Backend processing started - forwarding to: " + context.Request.Url.ToString())</message>
-        </trace>
         <base />
-        <trace source="backend-complete">
-            <message>@("Backend processing completed - received response with status: " + context.Response.StatusCode)</message>
-        </trace>
     </backend>
     <outbound>
-        <trace source="outbound-start">
-            <message>@("Outbound processing started - Response Status: " + context.Response.StatusCode + " | Content-Type: " + (context.Response.Headers.ContainsKey("Content-Type") ? string.Join(",", context.Response.Headers["Content-Type"]) : "N/A"))</message>
-        </trace>
         <base />
         <!--<cache-store duration="600"  />-->
-        <trace source="response-headers">
-            <message>@("Response Headers: " + string.Join(" | ", context.Response.Headers.Select(h => h.Key + "=" + string.Join(",", h.Value))))</message>
-        </trace>
-        <trace source="outbound-complete">
-            <message>@("Outbound processing completed for request: " + context.RequestId)</message>
+        <set-variable name="responseBody" value="@{
+            return context.Response.Body != null ? context.Response.Body.As<string>(preserveContent: true) : "";
+        }" />
+        <trace source="SucceedInformation" severity="error">
+            <message>API SucceedInformation</message>
+            <metadata name="Request.URL" value="@((string)context.Variables["requestUrl"])" />
+            <metadata name="Request.Body" value="@((context.Request.Body == null || String.IsNullOrEmpty((string)context.Variables["requestBody"])) ? "-none-" : (string)context.Variables["requestBody"])" />
+            <metadata name="Response.Body" value="@((context.Response.Body == null || String.IsNullOrEmpty((string)context.Variables["responseBody"])) ? "-none-" : (string)context.Variables["responseBody"])" />
         </trace>
     </outbound>
     <on-error>
+        <base />
         <trace source="error-occurred">
             <message>@("ERROR in request " + context.RequestId + " | Error: " + context.LastError.Message + " | Source: " + context.LastError.Source + " | Reason: " + context.LastError.Reason)</message>
         </trace>
-        <base />
+        <set-variable name="requestBody" value="@{
+            return context.Request.Body != null ? context.Request.Body.As<string>(preserveContent: true) : "";
+        }" />
+        <set-variable name="responseBody" value="@{
+            return context.Response.Body != null ? context.Response.Body.As<string>(preserveContent: true) : "";
+        }" />
+        <trace source="ErrorInformation" severity="error">
+            <message>API aErrorInformation</message>
+            <metadata name="Request.URL" value="@((string)context.Variables["requestUrl"])" />
+            <metadata name="Request.Body" value="@((context.Request.Body == null || String.IsNullOrEmpty((string)context.Variables["requestBody"])) ? "-none-" : (string)context.Variables["requestBody"])" />
+            <metadata name="Response.Body" value="@((context.Response.Body == null || String.IsNullOrEmpty((string)context.Variables["responseBody"])) ? "-none-" : (string)context.Variables["responseBody"])" />
+        </trace>
     </on-error>
 </policies>
