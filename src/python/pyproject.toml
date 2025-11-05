@@ -8,10 +8,10 @@ dependencies = [
     "fastmcp>=2.12.0",
     "python-dotenv",
     "semantic-kernel",
-   
+    "agent-framework",
     "azure-ai-projects",
     "azure-ai-inference",
-    "azure-ai-agents==1.1.0b4",
+    "azure-ai-agents",
     "azure-identity",
     "azure-monitor-opentelemetry",
     "msal",
@@ -19,3 +19,6 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.uv]
+prerelease = "allow"

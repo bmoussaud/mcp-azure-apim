@@ -27,7 +27,7 @@ The following sample demonstrates how to create a simple, Azure AI agent that
 uses the mcp tool to connect to an mcp server.
 """
 
-TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
+TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Linkin Park? Provide the average setlist length and the most frequently played songs."
 
 
 def _get_agent_instructions() -> str:
