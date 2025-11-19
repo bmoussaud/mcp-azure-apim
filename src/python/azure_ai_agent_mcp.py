@@ -2,12 +2,13 @@
 
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
+from azure.ai.projects import AIProjectClient
 import asyncio
 import os
 import time
-from azure.ai.agents.models import McpTool
+
 from azure.identity.aio import AzureCliCredential
-from azure.ai.agents.models import (
+from azure.ai.agents import (
     ListSortOrder,
     McpTool,
     RequiredMcpToolCall,
@@ -27,18 +28,28 @@ The following sample demonstrates how to create a simple, Azure AI agent that
 uses the mcp tool to connect to an mcp server.
 """
 
-TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Linkin Park? Provide the average setlist length and the most frequently played songs."
+TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
 
 
 def _get_agent_instructions() -> str:
+    return ""
+
+def _get_agent_instructions___() -> str:
     return (
         "You are an AI assistant that provides information about music artists, "
-        "their setlists, and concert details using the Setlist.fm API. "
+        "their setlists, and concert details using the Setlist.fm API provided by the MCP server. "
         "Use the available functions to fetch accurate and up-to-date information. "
-        "Be concise and relevant in your responses."
+        "Be concise and relevant in your responses. "
+        "When providing concert details, include the date, venue, and location of each concert."
+        "Always cite the source of your information."
+        "When you call function, ensure the arguments are correctly formatted as per the function definition and remove parameters that are not required or that have an empty value."
+        "Always start by searching for the artist using the 'search_artist' function."
+           
     )
 
 
+print("Setting up AI Project Client")
+print("PROJECT_ENDPOINT:", os.environ.get("PROJECT_ENDPOINT"))
 project_client = AIProjectClient(
     endpoint=os.environ["PROJECT_ENDPOINT"],
     credential=DefaultAzureCredential(),
@@ -83,14 +94,21 @@ async def main() -> None:
             "Ocp-Apim-Subscription-Key", str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY")))
         mcp_tool.update_headers("Authorization", f"Bearer {await azure_default_credential_token()}")
 
+        use_existing_agent=True
+        if use_existing_agent:
+            myAgent = "SETLIST"
+            # Get an existing agent
+            agent = project_client.agents.get(agent_name=myAgent)
+            print(f"Using existing agent with ID: {agent.id}")
+        else:
         # Create a new agent.
         # NOTE: To reuse existing agent, fetch it with get_agent(agent_id)
-        agent = agents_client.create_agent(
-            model=os.environ["MODEL_DEPLOYMENT_NAME"],
-            name="my-mcp-agent",
-            instructions=_get_agent_instructions(),
-            tools=mcp_tool.definitions,
-        )
+            agent = agents_client.create_agent(
+                model=os.environ["MODEL_DEPLOYMENT_NAME"],
+                name="my-mcp-agent",
+                instructions=_get_agent_instructions(),
+                tools=mcp_tool.definitions,
+            )
         # [END create_agent_with_mcp_tool]
 
         print(f"Created agent, ID: {agent.id}")
