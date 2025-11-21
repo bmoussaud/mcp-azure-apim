@@ -9,7 +9,7 @@
       "value": "${AZURE_LOCATION}"
     },
     "aiFoundryLocation": {
-      "value": "switzerlandnorth"
+      "value": "swedencentral"
     },
     "setlistfmApiKey": {
       "value": "4b15bd76-3455-4f06-b606-293848fbad49"

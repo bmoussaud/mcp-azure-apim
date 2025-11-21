@@ -27,9 +27,40 @@ def _get_agent_instructions() -> str:
         "When providing concert details, include the date, venue, and location of each concert."
         "Always cite the source of your information."
         "When you call function, ensure the arguments are correctly formatted as per the function definition and remove parameters that are not required or that have an empty value."
-        "Always start by searching for the artist using the 'search_artist' function."
-           
+        "If the value of parameter is blank or empty, do not include it in the function call."
+        "Always start by searching for the artist Mdid using the 'searchForArtist' function."
     )
+
+def _process_mcp_approval_requests(response, approved_server_label: str = "setlistfm") -> list[ResponseInputParam]:
+    """
+    Process MCP approval requests from the agent response.
+    
+    Args:
+        response: The response from the OpenAI client containing potential MCP approval requests
+        approved_server_label: The server label to automatically approve (default: "setlistfm")
+        
+    Returns:
+        List of ResponseInputParam containing approval responses
+    """
+    input_list: list[ResponseInputParam] = []
+    
+    for item in response.output:
+        print(f"Response Item Type: {item.type}")
+        if item.type == "mcp_approval_request":
+            if item.server_label == approved_server_label and item.id:
+                # Automatically approve the MCP request to allow the agent to proceed
+                # In production, you might want to implement more sophisticated approval logic
+                print(f"Approving MCP request for server: {item.server_label}, request ID: {item.id}")
+                print(f"Approving the call of '{item.name}' with the following arguments: {item.arguments}")
+                input_list.append(
+                    McpApprovalResponse(
+                        type="mcp_approval_response",
+                        approve=True,
+                        approval_request_id=item.id,
+                    )
+                )
+    
+    return input_list
 
 
 myAgent = "SETLIST"
@@ -38,8 +69,6 @@ myAgent = "SETLIST"
 #print(f"Retrieved agent: {agent.name}")
 #print(f"Agent ID: {agent.id}"   )
 #print(f"Agent Definition: {agent.versions['latest']}")
-
-
 
 
 setlistfm_mcp_url = os.getenv("SETLISTAPI_MCP_ENDPOINT")
@@ -51,7 +80,7 @@ if not setlistfm_mcp_url:
         "SETLISTAPI_MCP_ENDPOINT must be set in environment variables.")
 
 
-mcp_tool = MCPTool(
+mcp_tool_new = MCPTool(
             server_label="SetlistFMTool",
             server_url=setlistfm_mcp_url,
             require_approval="always",
@@ -59,66 +88,77 @@ mcp_tool = MCPTool(
             headers={'Ocp-Apim-Subscription-Key': str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))})
 
 mcp_tool = MCPTool(
-            server_label="setlistfm",
+            server_label="setlistfmAPI",
             server_url=setlistfm_mcp_url,
             require_approval="always",
-            project_connection_id="setlistfm",
+            project_connection_id="setlistfm-mcp",
             )
 
 agent_definition = PromptAgentDefinition(
         model=os.environ["MODEL_DEPLOYMENT_NAME"],
-        instructions= "", #_get_agent_instructions(),
+        instructions= _get_agent_instructions(),
         tools=[mcp_tool], 
         )
 
+tool = MCPTool(
+        server_label="setlistfm-mcp-tool",
+        server_url=setlistfm_mcp_url,
+        require_approval="never",
+        project_connection_id="setlistfm-mcp",
+    )
 agents_client = project_client.agents
-agent = agents_client.create(name="my-mcp-agent-13",definition=agent_definition)
+#agent = agents_client.create(name="my-mcp-agent-15",definition=agent_definition)
+agent = project_client.agents.create_version(
+        agent_name="MyAgentWithMCPTool-SetListFM-002",
+        definition=PromptAgentDefinition(
+            model=os.environ["MODEL_DEPLOYMENT_NAME"],
+            instructions="Use MCP tools as needed",
+            tools=[tool],
+        ),
+    )
 
 print(f"Created agent: {agent.name}")
 print(f"Agent ID: {agent.id}"   )
-version = agent.versions['latest'].version
-print(f"Agent Definition: {agent.versions['latest']}")
-
+version = agent.version
 print(f"Agent created (id: {agent.id}, name: {agent.name}, version: {version})")
 
 openai_client = project_client.get_openai_client()
 
 # Reference the agent to get a response
+TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
+print("Sending request to agent...")
+print("TASK:", TASK )
 response = openai_client.responses.create(
-    input=[{"role": "user", "content": "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."}],
+    input=[{"role": "user", "content": TASK}],
     extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
 )
 
- # Process any MCP approval requests that were generated
-input_list: ResponseInputParam = []
+
+while True:
+    # Process any MCP approval requests that were generated
+    input_list = _process_mcp_approval_requests(response)
+    if len(input_list) == 0:
+        print("No MCP approval requests to process.")
+        print("STOP: ", response.output)
+        break
+    else:
+        print(f"Processed {len(input_list)} MCP approval requests.")
+        # Send the approval response back to continue the agent's work
+        # This allows the MCP tool to access the SetlistFM servicenand complete the original request
+        response = openai_client.responses.create(
+            input=input_list,
+            previous_response_id=response.id,
+            extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
+    )
+
+print(f"Final Response: {response}")
 for item in response.output:
-    if item.type == "mcp_approval_request":
-        if item.server_label == "setlistfm" and item.id:
-            # Automatically approve the MCP request to allow the agent to proceed
-            # In production, you might want to implement more sophisticated approval logic
-            print(f"Approving MCP request for server: {item.server_label}, request ID: {item.id}")
-            #print(item)
-            print(f"Approving the call of '{item.name}' with the following arguments: {item.arguments}")
-            input_list.append(
-                McpApprovalResponse(
-                    type="mcp_approval_response",
-                    approve=True,
-                    approval_request_id=item.id,
-                )
-            )
+    print (item)
+    print(f"Response Item Type: {item.type}")
+    print(f"Response Item Content: {getattr(item, 'output', None)}")
 
-print("Final input:")
-print(input_list)
 
-# Send the approval response back to continue the agent's work
-# This allows the MCP tool to access the GitHub repository and complete the original request
-response = openai_client.responses.create(
-    input=input_list,
-    previous_response_id=response.id,
-    extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
-)
-
-print(f"Final Response: {response.output_text}")
+print(f"=>Final Response: {response.output_text}")
 
   # Clean up resources by deleting the agent version
 # This prevents accumulation of unused agent versions in your project

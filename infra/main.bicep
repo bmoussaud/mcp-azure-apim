@@ -76,9 +76,9 @@ module aiFoundry 'modules/ai-foundry.bicep' = {
     tags: tags
     modelDeploymentsParameters: [
       {
-        name: 'gpt-4.1-mini'
-        model: 'gpt-4.1-mini'
-        capacity: 1000
+        name: 'gpt-4.1'
+        model: 'gpt-4.1'
+        capacity: 100
         deployment: 'GlobalStandard'
         version: '2025-04-14'
         format: 'OpenAI'
@@ -92,9 +92,9 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
   params: {
     location: aiFoundryLocation
     aiFoundryName: aiFoundry.outputs.aiFoundryName
-    aiProjectName: environmentName
-    aiProjectFriendlyName: 'Setlistfy Project ${environmentName}'
-    aiProjectDescription: 'Agents to help to manage setlist and music events.'
+    aiProjectName: 'mcp-${environmentName}'
+    aiProjectFriendlyName: 'MCP Project ${environmentName}'
+    aiProjectDescription: 'Agents to demonstrate the usage of MCP servers.'
     applicationInsightsName: applicationInsights.outputs.name
 
     customKey: {

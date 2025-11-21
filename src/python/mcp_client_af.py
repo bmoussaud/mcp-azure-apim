@@ -64,31 +64,23 @@ async def api_key_auth_example() -> None:
             agent_name="SetListFM Agent",
         )
     
-    await chat_client.setup_azure_ai_observability()
+    #await chat_client.setup_azure_ai_observability()
     
     agent = ChatAgent(
         chat_client=chat_client,
-        name="Microsoft Learn Agent",
-        instructions="You are a helpful agent for both Microsoft docs questions and general questions.",
-        tools=[
-            ms_learn,
-        ],
-    )
-
-    agent_setlist = ChatAgent(
-        chat_client=chat_client,
-        name="Setlist.fm Agent",
+       name="Setlist.fm Agent",
         instructions=_get_agent_instructions(),
         tools=[
             setlistfm_tool,
         ],
     )
 
+
     print("🤖 Running agent with API key authentication...  ")
     print("TASK:", TASK )
     #result = await agent.run()
     print("Agent: ", end="", flush=True)
-    async for chunk in agent.run_stream("Tell me more about Microsoft Agent Framework"):
+    async for chunk in agent.run_stream(TASK):
         for content in chunk.contents:
             if isinstance(content, TextReasoningContent):
                 print(f"\033[32m{content.text}\033[0m", end="", flush=True)
