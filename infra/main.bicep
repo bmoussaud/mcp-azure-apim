@@ -19,6 +19,13 @@ var tags = {
   'azd-env-name': environmentName
 }
 
+module setlistFmMCP 'modules/mcp.bicep' = {
+  name: 'my-setlistfm-mcp'
+  params: {
+    apimName: apiManagement.outputs.name
+  }
+}
+
 module setlistFmApi 'modules/api.bicep' = {
   name: 'setlistfm-api'
   params: {
