@@ -23,6 +23,28 @@ module setlistFmMCP 'modules/mcp.bicep' = {
   name: 'my-setlistfm-mcp'
   params: {
     apimName: apiManagement.outputs.name
+    apiId: setlistFmApi.outputs.apiResourceId
+    mcp:  {
+      name: 'bicep-setlistfm-mcp'
+      description: 'bla bla'
+      displayName: ''
+      path: 'bicep-setlistfm-mcp-path'
+      policyXml: loadTextContent('../src/apim/setlistfm/mcp-policy-setlistfm.xml')
+      tools :[
+          {
+            name:'searchForArtists'
+            operationName:'resource__1-0_search_artists_getArtists_GET'
+          }
+          {
+            name:'searchForSetlists'
+            operationName:'resource__1-0_search_setlists_getSetlists_GET'
+          }
+          {
+            name:'searchForCities'
+            operationName:'resource__1-0_search_cities_getCities_GET'
+          }
+        ]
+    }
   }
 }
 
