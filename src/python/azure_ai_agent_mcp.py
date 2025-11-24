@@ -1,40 +1,24 @@
-# Copyright (c) Microsoft. All rights reserved.
-
+# base https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/ai/azure-ai-projects/samples/agents/tools/sample_agent_mcp_with_project_connection.py
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
-from azure.ai.projects import AIProjectClient
-import asyncio
 import os
-import time
-
-from azure.identity.aio import AzureCliCredential
-from azure.ai.agents import (
-    ListSortOrder,
-    McpTool,
-    RequiredMcpToolCall,
-    SubmitToolApprovalAction,
-    ToolApproval, RunStepToolCallDetails
-)
-
-# from semantic_kernel.agents import AzureAIAgent, AzureAIAgentSettings, AzureAIAgentThread
-# from semantic_kernel.contents import ChatMessageContent, FunctionCallContent, FunctionResultContent
-
+from azure.ai.projects.models import (PromptAgentDefinition, MCPTool)
+from openai.types.responses.response_output_item import McpApprovalRequest, McpListTools
+from azure.ai.projects.models import PromptAgentDefinition, MCPTool, Tool
+from openai.types.responses.response_input_param import McpApprovalResponse, ResponseInputParam
 from dotenv import load_dotenv
-import traceback
+
+
 
 load_dotenv()
-"""
-The following sample demonstrates how to create a simple, Azure AI agent that
-uses the mcp tool to connect to an mcp server.
-"""
-
-TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
-
+print("Setting up AI Project Client")
+print("PROJECT_ENDPOINT:", os.environ.get("PROJECT_ENDPOINT"))
+project_client = AIProjectClient(
+    endpoint=os.environ["PROJECT_ENDPOINT"],
+    credential=DefaultAzureCredential(),
+)
 
 def _get_agent_instructions() -> str:
-    return ""
-
-def _get_agent_instructions___() -> str:
     return (
         "You are an AI assistant that provides information about music artists, "
         "their setlists, and concert details using the Setlist.fm API provided by the MCP server. "
@@ -43,17 +27,40 @@ def _get_agent_instructions___() -> str:
         "When providing concert details, include the date, venue, and location of each concert."
         "Always cite the source of your information."
         "When you call function, ensure the arguments are correctly formatted as per the function definition and remove parameters that are not required or that have an empty value."
-        "Always start by searching for the artist using the 'search_artist' function."
-           
+        "If the value of parameter is blank or empty, do not include it in the function call."
+        "Always start by searching for the artist Mdid using the 'searchForArtist' function."
     )
 
-
-print("Setting up AI Project Client")
-print("PROJECT_ENDPOINT:", os.environ.get("PROJECT_ENDPOINT"))
-project_client = AIProjectClient(
-    endpoint=os.environ["PROJECT_ENDPOINT"],
-    credential=DefaultAzureCredential(),
-)
+def _process_mcp_approval_requests(response, approved_server_label: str = "setlistfm-mcp-tool") -> list[ResponseInputParam]:
+    """
+    Process MCP approval requests from the agent response.
+    
+    Args:
+        response: The response from the OpenAI client containing potential MCP approval requests
+        approved_server_label: The server label to automatically approve (default: "setlistfm")
+        
+    Returns:
+        List of ResponseInputParam containing approval responses
+    """
+    input_list: list[ResponseInputParam] = []
+    
+    for item in response.output:
+        print(f"Response Item Type: {item.type}")
+        if item.type == "mcp_approval_request":
+            if item.server_label == approved_server_label and item.id:
+                # Automatically approve the MCP request to allow the agent to proceed
+                # In production, you might want to implement more sophisticated approval logic
+                print(f"Approving MCP request for server: {item.server_label}, request ID: {item.id}")
+                print(f"Approving the call of '{item.name}' with the following arguments: {item.arguments}")
+                input_list.append(
+                    McpApprovalResponse(
+                        type="mcp_approval_response",
+                        approve=True,
+                        approval_request_id=item.id,
+                    )
+                )
+    
+    return input_list
 
 setlistfm_mcp_url = os.getenv("SETLISTAPI_MCP_ENDPOINT")
 print(f"Setting up Setlist FM plugin {setlistfm_mcp_url}")
@@ -63,154 +70,71 @@ if not setlistfm_mcp_url:
     raise ValueError(
         "SETLISTAPI_MCP_ENDPOINT must be set in environment variables.")
 
-# 1. Define the MCP tool with the server URL
-mcp_tool = McpTool(
-    server_label="setlisftfm",
-    server_url=setlistfm_mcp_url,
-    allowed_tools=[],  # Specify allowed tools if needed
+existing_tool = MCPTool(
+        server_label="existing-mcp-tool",
+        require_approval="always",
+        project_connection_id="setlistfm-mcp-connection", 
+        server_url=setlistfm_mcp_url,
+        headers={'Ocp-Apim-Subscription-Key': str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))}
+        )
+
+agent = project_client.agents.create_version(
+        agent_name="SetlistFM-MCP-Agent",
+        definition=PromptAgentDefinition(
+            model=os.environ["MODEL_DEPLOYMENT_NAME"],
+            instructions="Use MCP tools as needed",
+            tools=[existing_tool],
+        ),
+    )
+
+print(f"Created agent: {agent.name}")
+print(f"Agent ID: {agent.id}"   )
+version = agent.version
+print(f"Agent created (id: {agent.id}, name: {agent.name}, version: {version})")
+
+openai_client = project_client.get_openai_client()
+
+# Reference the agent to get a response
+TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
+print("Sending request to agent...")
+print("TASK:", TASK )
+response = openai_client.responses.create(
+    input=[{"role": "user", "content": TASK}],
+    extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
 )
 
-# Optionally you may configure to require approval
-# Allowed values are "never" or "always"
-# mcp_tool.set_approval_mode("never")
+
+while True:
+    # Process any MCP approval requests that were generated
+    input_list = _process_mcp_approval_requests(response, approved_server_label=existing_tool.server_label)
+    if len(input_list) == 0:
+        print("No MCP approval requests to process.")
+        print("STOP: ", response.output)
+        break
+    else:
+        print(f"Processed {len(input_list)} MCP approval requests.")
+        # Send the approval response back to continue the agent's work
+        # This allows the MCP tool to access the SetlistFM servicenand complete the original request
+        response = openai_client.responses.create(
+            input=input_list,
+            previous_response_id=response.id,
+            extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
+    )
+
+print(f"Final Response: {response}")
+for item in response.output:
+    print (item)
+    print(f"Response Item Type: {item.type}")
+    print(f"Response Item Content: {getattr(item, 'output', None)}")
 
 
-async def azure_default_credential_token():
-    print("Using DefaultAzureCredential")
-    from azure.identity import DefaultAzureCredential
-    credential = DefaultAzureCredential()
-    scope = f"api://{os.getenv("OAUTH_APP_ID")}/.default"
-    access_token = credential.get_token(scope)
-    print(f"Access token acquired: {access_token.token}")
-    return access_token.token
+print(f"=>Final Response: {response.output_text}")
+
+# Clean up resources by deleting the agent version
+# This prevents accumulation of unused agent versions in your project
+#print(f"Deleting agent version to clean up resources...{agent.name} - {version}")
+#project_client.agents.delete_version(agent_name=agent.name, agent_version=version)
+#print("Agent deleted")
 
 
-async def main() -> None:
-    with project_client:
-        agents_client = project_client.agents
-
-        print(f"MCP Tool resources: {mcp_tool.resources}")
-        mcp_tool.update_headers(
-            "Ocp-Apim-Subscription-Key", str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY")))
-        mcp_tool.update_headers("Authorization", f"Bearer {await azure_default_credential_token()}")
-
-        use_existing_agent=True
-        if use_existing_agent:
-            myAgent = "SETLIST"
-            # Get an existing agent
-            agent = project_client.agents.get(agent_name=myAgent)
-            print(f"Using existing agent with ID: {agent.id}")
-        else:
-        # Create a new agent.
-        # NOTE: To reuse existing agent, fetch it with get_agent(agent_id)
-            agent = agents_client.create_agent(
-                model=os.environ["MODEL_DEPLOYMENT_NAME"],
-                name="my-mcp-agent",
-                instructions=_get_agent_instructions(),
-                tools=mcp_tool.definitions,
-            )
-        # [END create_agent_with_mcp_tool]
-
-        print(f"Created agent, ID: {agent.id}")
-        print(f"MCP Server: {mcp_tool.server_label} at {mcp_tool.server_url}")
-
-        # Create thread for communication
-        thread = agents_client.threads.create()
-        print(f"Created thread, ID: {thread.id}")
-
-        print(f"Posting task to agent: {TASK}")
-        # Create message to thread
-        message = agents_client.messages.create(
-            thread_id=thread.id,
-            role="user",
-            content=TASK,
-        )
-        print(f"Created message, ID: {message.id}")
-
-        # [START handle_tool_approvals]
-        # Create and process agent run in thread with MCP tools
-        run = agents_client.runs.create(
-            thread_id=thread.id, agent_id=agent.id, tool_resources=mcp_tool.resources)
-        print(f"Created run, ID: {run.id}")
-
-        while run.status in ["queued", "in_progress", "requires_action"]:
-            time.sleep(1)
-            run = agents_client.runs.get(thread_id=thread.id, run_id=run.id)
-
-            if run.status == "requires_action" and isinstance(run.required_action, SubmitToolApprovalAction):
-                tool_calls = run.required_action.submit_tool_approval.tool_calls
-                if not tool_calls:
-                    print("No tool calls provided - cancelling run")
-                    agents_client.runs.cancel(
-                        thread_id=thread.id, run_id=run.id)
-                    break
-
-                tool_approvals = []
-                for tool_call in tool_calls:
-                    if isinstance(tool_call, RequiredMcpToolCall):
-                        try:
-                            print(
-                                f"Approving tool call: {tool_call.type}/{tool_call.server_label}/{tool_call.name}")
-                            print(f" with inputs: {tool_call.arguments}")
-                            tool_approvals.append(
-                                ToolApproval(
-                                    tool_call_id=tool_call.id,
-                                    approve=True,
-                                    headers=mcp_tool.headers,
-                                )
-                            )
-                        except Exception as e:
-                            print(
-                                f"Error approving tool_call {tool_call.id}: {e}")
-
-                # print(f"Tool_approvals: {tool_approvals}")
-                if tool_approvals:
-                    agents_client.runs.submit_tool_outputs(
-                        thread_id=thread.id, run_id=run.id, tool_approvals=tool_approvals
-                    )
-
-            print(f"Current run status: {run.status}")
-            # [END handle_tool_approvals]
-
-        print(f"Run completed with status: {run.status}")
-        if run.status == "failed":
-            print(f"Run failed: {run.last_error}")
-
-        # Display run steps and tool calls
-        run_steps = agents_client.run_steps.list(
-            thread_id=thread.id, run_id=run.id)
-
-        # Loop through each step
-        for step in run_steps:
-            print(f"Step {step['id']} status: {step['status']}")
-
-            # Check if there are tool calls in the step details
-            step_details = step.get("step_details", {})
-            if isinstance(step_details, RunStepToolCallDetails):
-                for call in step_details.tool_calls:
-                    print(f" Tool Call ID: {call.id}")
-                    print(
-                        f" Type: {call.type}/{call.get('server_label')}/{call.get('name')}")
-                    print(f" inputs: {call.get('arguments')}")
-
-            print()  # add an extra newline between steps
-
-        # Fetch and log all messages
-        messages = agents_client.messages.list(
-            thread_id=thread.id, order=ListSortOrder.ASCENDING)
-        print("\nConversation:")
-        print("-" * 50)
-        for msg in messages:
-            if msg.text_messages:
-                last_text = msg.text_messages[-1]
-                print(f"{msg.role.upper()}: {last_text.text.value}")
-                print("-" * 50)
-
-        # Clean-up and delete the agent once the run is finished.
-        # NOTE: Comment out this line if you plan to reuse the agent later.
-        agents_client.delete_agent(agent.id)
-        print("Deleted agent")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        

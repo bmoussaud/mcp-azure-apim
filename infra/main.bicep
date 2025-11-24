@@ -97,10 +97,10 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
     aiProjectDescription: 'Agents to demonstrate the usage of MCP servers.'
     applicationInsightsName: applicationInsights.outputs.name
 
-    customKey: {
-      name: setlistFmApi.outputs.apiName
-      target: 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}'
-      authKey: setlistFmApi.outputs.subscriptionPrimaryKey
+    mcpConnection: {
+      name: '${setlistFmApi.outputs.apiName}-mcp-connection'
+      target: 'https://${apiManagement.outputs.apiManagementProxyHostName}/setlistfm-mcp/mcp'
+      keys: {'Ocp-Apim-Subscription-Key': setlistFmApi.outputs.subscriptionPrimaryKey}
     }
   }
 }

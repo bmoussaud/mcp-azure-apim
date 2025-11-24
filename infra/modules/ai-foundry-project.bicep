@@ -17,10 +17,10 @@ param aiProjectDescription string
 
 param applicationInsightsName string
 
-param customKey object = {
-  name: 'setlistfm-mcp'
+param mcpConnection object = {
+  name: 'c-setlistfm-mcp'
   target: 'https://apim-w2un3mx3jcoae.azure-api.net/setlistfm-mcp/mcp'
-  authKey: 'efd82d7791b34a6ea1c1777ba00162bd'
+  keys: {'Ocp-Apim-Subscription-Key':'efd82d7791b34a6ea1c1777ba00162bd'}
 }
 
 resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-07-01-preview' existing = {
@@ -64,19 +64,17 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-previ
 
 
 resource connectionMCPCustom 'Microsoft.CognitiveServices/accounts/connections@2025-10-01-preview' = {
-  name: '${customKey.name}-mcp'
+  name: mcpConnection.name
   parent: aiFoundry
   properties: {
     category: 'RemoteTool'
-    target: 'https://apim-w2un3mx3jcoae.azure-api.net/setlistfm-mcp/mcp' //customKey.target
+    target: mcpConnection.target
     authType: 'CustomKeys'
-    isSharedToAll: false
+    isSharedToAll: true
     credentials: {
-      keys: {
-        'Ocp-Apim-Subscription-Key': customKey.authKey
-      }
+      keys: mcpConnection.keys
     }
-    metadata: {}
+    metadata: {type: 'custom_MCP'}
   }
 }
 

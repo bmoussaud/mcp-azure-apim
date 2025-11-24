@@ -148,12 +148,29 @@ uv run azure_ai_agent_mcp.py
 
 Sample Output:
 
-> Setting up Setlist FM plugin https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp  
-> [...]  
-> Conversation:  
-> USER: Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs.  
-> ASSISTANT: In 2025, Wolf Alice performed multiple concerts with a variety of setlists mostly from their tour "The Clearing" and some intimate live shows. Here are some key details:  
-> [...]
+```
+Setting up AI Project Client
+PROJECT_ENDPOINT: https://foundry-7ephb7ltz2uu2.services.ai.azure.com/api/projects/mcp-dev
+Setting up Setlist FM plugin https://apim-7ephb7ltz2uu2.azure-api.net/setlistfm-mcp/mcp
+Created agent: SetlistFM-MCP-Agent
+Agent ID: SetlistFM-MCP-Agent:1
+Agent created (id: SetlistFM-MCP-Agent:1, name: SetlistFM-MCP-Agent, version: 1)
+Sending request to agent...
+TASK: Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs.
+Response Item Type: mcp_list_tools
+Response Item Type: mcp_approval_request
+Approving MCP request for server: existing-mcp-tool, request ID: mcpr_0827a8c84ce4fb44006924615f281081949e5f81c37fd308cc
+Approving the call of 'searchForSetlists' with the following arguments: {"year":"2025","artistName":"Wolf Alice","p":"1"}
+Processed 1 MCP approval requests.
+Response Item Type: mcp_call
+Response Item Type: message
+No MCP approval requests to process.
+STOP:  [McpCall(id='mcp_0827a8c84ce4fb44006924615ff9488194a6b2146b967fbab1', arguments='{"year":"2025","artistName":"Wolf Alice","p":"1"}', name='searchForSetlists', ......
+Response Item Type: mcp_call
+Response Item Content: {
+   "type" : "setlists",
+
+```
 
 Once the conversation is finished, it is possible to view the executed thread in the [AI Foundry Portal](http://ai.azure.com):
 

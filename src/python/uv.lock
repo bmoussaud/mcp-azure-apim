@@ -12,7 +12,7 @@ prerelease-mode = "allow"
 
 [[package]]
 name = "a2a-sdk"
-version = "0.4.0"
+version = "0.3.16"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "google-api-core" },
@@ -21,9 +21,9 @@ dependencies = [
     { name = "protobuf" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/5a/0070eace92dc3e2530be5e68c217a2d350a336697f6ecff7b726ccf9e843/a2a_sdk-0.4.0.tar.gz", hash = "sha256:49e32122c3bb5d502dd600c37f417b0d07750fdb86675655700e334905467e02", size = 228725, upload-time = "2025-11-19T11:21:10.464Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/df/57/0c5605a956646c3a3fe0a6f0eb2eb1193718b01b5ef3fb7288b20684e67b/a2a_sdk-0.3.16.tar.gz", hash = "sha256:bc579091cfcf18341076379ea7efb361df0aca4822db05db7267d9d7f881e964", size = 228805, upload-time = "2025-11-21T13:34:48.842Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/ab/bbf149c6a70c66e8e741aa07544af553a6b9f00339dd7743d902b6a66b6a/a2a_sdk-0.4.0-py3-none-any.whl", hash = "sha256:4dac0bbbf455fa3f4d0d3e7369dd2f93be687fca7e9493be1b748c418acfd7a0", size = 141368, upload-time = "2025-11-19T11:21:09.215Z" },
+    { url = "https://files.pythonhosted.org/packages/98/e9/2fb9871bb416ae34b3a8f3c08de4bccb0a9b3b1dc0cb9a48940b13c14601/a2a_sdk-0.3.16-py3-none-any.whl", hash = "sha256:e5e1d6f8208985ed42b488dde9721bfb9efdf94e903700bb6c53d599b1433e03", size = 141390, upload-time = "2025-11-21T13:34:47.332Z" },
 ]
 
 [[package]]
@@ -1615,8 +1615,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "agent-framework" },
-    { name = "azure-ai-projects", specifier = "~=2.0.0b1" },
-    { name = "azure-identity", specifier = "~=1.20.0" },
+    { name = "azure-ai-projects", specifier = "~=2.0.0b2" },
+    { name = "azure-identity" },
     { name = "azure-monitor-opentelemetry" },
     { name = "fastmcp", specifier = ">=2.12.0" },
     { name = "msal" },
