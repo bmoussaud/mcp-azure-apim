@@ -19,16 +19,32 @@ var tags = {
   'azd-env-name': environmentName
 }
 
-module setlistFmMCP 'modules/mcp.bicep' = {
-  name: 'my-setlistfm-mcp'
+module mslearn 'modules/mcp-proxy.bicep' = {
+  name: 'mslearn-mcp'
+  params: {
+    apimName: apiManagement.outputs.name
+    mcp:  {
+      name: 'mslearn-mcp'
+      description: 'Proxy to Microsoft Learn API'
+      displayName: 'Microsoft Learn API MCP'
+      path: 'mslearn-mcp'
+      url: 'https://learn.microsoft.com'
+      policyXml: loadTextContent('../src/apim/setlistfm/mcp-policy-setlistfm.xml')
+      uriTemaplate: '/api/mcp'
+    }
+  }
+}
+
+module setlistFmMCP 'modules/mcp-api.bicep' = {
+  name: 'setlistfm-mcp'
   params: {
     apimName: apiManagement.outputs.name
     apiId: setlistFmApi.outputs.apiResourceId
     mcp:  {
-      name: 'bicep-setlistfm-mcp'
-      description: 'bla bla'
-      displayName: ''
-      path: 'bicep-setlistfm-mcp-path'
+      name: 'setlistfm-mcp'
+      description: 'Setlist.fm MCP for concert details'
+      displayName: 'Setlist.fm MCP'
+      path: 'setlistfm-mcp'
       policyXml: loadTextContent('../src/apim/setlistfm/mcp-policy-setlistfm.xml')
       tools :[
           {
@@ -38,10 +54,6 @@ module setlistFmMCP 'modules/mcp.bicep' = {
           {
             name:'searchForSetlists'
             operationName:'resource__1-0_search_setlists_getSetlists_GET'
-          }
-          {
-            name:'searchForCities'
-            operationName:'resource__1-0_search_cities_getCities_GET'
           }
         ]
     }
@@ -65,7 +77,10 @@ module setlistFmApi 'modules/api.bicep' = {
       policyXml: loadTextContent('../src/apim/setlistfm/policy-setlistfm.xml')
       value: 'https://api.setlist.fm/docs/1.0/ui/swagger.json'
     }
-  }
+  } 
+  dependsOn: [ 
+    setlistfmApiKeyNV
+  ]
 }
 
 module setlistfmApiKeyNV 'modules/named-value.bicep' = {
@@ -128,7 +143,7 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
 
     mcpConnection: {
       name: '${setlistFmApi.outputs.apiName}-mcp-connection'
-      target: 'https://${apiManagement.outputs.apiManagementProxyHostName}/setlistfm-mcp/mcp'
+      target: 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmMCP.outputs.mcpPath}/mcp'
       keys: {'Ocp-Apim-Subscription-Key': setlistFmApi.outputs.subscriptionPrimaryKey}
     }
   }

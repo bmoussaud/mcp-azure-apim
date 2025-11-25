@@ -1,31 +1,29 @@
 @description('The name of the API Management instance. Defaults to "apim-<resourceSuffix>".')
 param apimName string
 
-param apiId string
-
 resource apimService 'Microsoft.ApiManagement/service@2024-06-01-preview' existing = {
   name: apimName
 }
 
 param mcp object = {
-  name: 'bicep-setlistfm-mcp'
+  name: 'bicep-mslearn-mcp'
   description: 'bla bla'
   displayName: ''
   path: 'bicep-setlistfm-mcp-path'
-  tools :[
-      {
-        name:'searchForArtists'
-        description:'Search for artists'
-        operationId:'<path to/operations/resource__1-0_search_artists_getArtists_GET'
-      }
-       {
-        name:'searchForSetlists'
-        description:'Search for Setlists'
-        operationId:'${apiId}/operations/resource__1-0_search_setlists_getSetlists_GET'
-      }
-    ]
+  url: 'https://learn.microsoft.com'
+  uriTemaplate: '/api/mcp'
 }
 
+
+resource mcpBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
+  name: mcp.name
+  parent: apimService
+  properties: {
+    description: 'Backend for ${mcp.name}'
+    url: mcp.url
+    protocol: 'http'
+  }
+}
 
 resource apimApi 'Microsoft.ApiManagement/service/apis@2024-10-01-preview' = {
   name: mcp.name
@@ -38,16 +36,20 @@ resource apimApi 'Microsoft.ApiManagement/service/apis@2024-10-01-preview' = {
       'https'
     ]
     type: 'mcp'
+    backendId: mcpBackend.name
     subscriptionKeyParameterNames: {
       header: 'Ocp-Apim-Subscription-Key'
       query: 'Ocp-Apim-Subscription-Key'
     }
     subscriptionRequired: false
-    mcptools: map(mcp.tools, (tool) => ({
-      name: tool.name
-      description: tool.name
-      operationId: '${apiId}/operations/${tool.operationName}'
-    }))
+    mcpProperties: {
+          endpoint: {
+            mcp: {
+              uriTemplate: mcp.uriTemaplate
+            }
+          }
+        }
+    
 
   }
 }
@@ -60,3 +62,7 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-pre
     value: mcp.policyXml
   }
 }
+
+output mcpName string = apimApi.properties.displayName
+output mcpResourceId string = apimApi.id
+output mcpPath string = apimApi.properties.path
