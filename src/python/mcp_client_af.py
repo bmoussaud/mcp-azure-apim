@@ -58,8 +58,8 @@ async def api_key_auth_example() -> None:
     print("setlistfm_tool tool:", setlistfm_tool)
 
     chat_client = AzureAIAgentClient(
-            project_endpoint=os.getenv("AZURE_AI_AGENT_ENDPOINT"),
-            model_deployment_name=os.getenv("AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME"),
+            project_endpoint=os.getenv("AZURE_AI_PROJECT_ENDPOINT"),
+            model_deployment_name=os.getenv("AZURE_AI_MODEL_DEPLOYMENT_NAME"),
             async_credential=DefaultAzureCredential(),
             agent_name="SetListFM Agent",
         )

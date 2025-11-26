@@ -2,21 +2,11 @@
 from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 import os
-from azure.ai.projects.models import (PromptAgentDefinition, MCPTool)
-from openai.types.responses.response_output_item import McpApprovalRequest, McpListTools
-from azure.ai.projects.models import PromptAgentDefinition, MCPTool, Tool
+
+from azure.ai.projects.models import PromptAgentDefinition, MCPTool
 from openai.types.responses.response_input_param import McpApprovalResponse, ResponseInputParam
 from dotenv import load_dotenv
 
-
-
-load_dotenv()
-print("Setting up AI Project Client")
-print("PROJECT_ENDPOINT:", os.environ.get("PROJECT_ENDPOINT"))
-project_client = AIProjectClient(
-    endpoint=os.environ["PROJECT_ENDPOINT"],
-    credential=DefaultAzureCredential(),
-)
 
 def _get_agent_instructions() -> str:
     return (
@@ -30,6 +20,7 @@ def _get_agent_instructions() -> str:
         "If the value of parameter is blank or empty, do not include it in the function call."
         "Always start by searching for the artist Mdid using the 'searchForArtist' function."
     )
+
 
 def _process_mcp_approval_requests(response, approved_server_label: str = "setlistfm-mcp-tool") -> list[ResponseInputParam]:
     """
@@ -62,6 +53,14 @@ def _process_mcp_approval_requests(response, approved_server_label: str = "setli
     
     return input_list
 
+load_dotenv()
+print("Setting up AI Project Client")
+print("AZURE_AI_AGENT_ENDPOINT:", os.environ.get("AZURE_AI_AGENT_ENDPOINT"))
+project_client = AIProjectClient(
+    endpoint=os.environ["AZURE_AI_AGENT_ENDPOINT"],
+    credential=DefaultAzureCredential(),
+)
+
 setlistfm_mcp_url = os.getenv("SETLISTAPI_MCP_ENDPOINT")
 print(f"Setting up Setlist FM plugin {setlistfm_mcp_url}")
 if not setlistfm_mcp_url:
@@ -78,19 +77,16 @@ existing_tool = MCPTool(
         headers={'Ocp-Apim-Subscription-Key': str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))}
         )
 
+
 agent = project_client.agents.create_version(
         agent_name="SetlistFM-MCP-Agent",
         definition=PromptAgentDefinition(
-            model=os.environ["MODEL_DEPLOYMENT_NAME"],
-            instructions="Use MCP tools as needed",
+            model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
+            instructions=_get_agent_instructions(),
             tools=[existing_tool],
         ),
     )
-
-print(f"Created agent: {agent.name}")
-print(f"Agent ID: {agent.id}"   )
-version = agent.version
-print(f"Agent created (id: {agent.id}, name: {agent.name}, version: {version})")
+print(f"Created agent {agent.name}/{agent.id} using model:", os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"])
 
 openai_client = project_client.get_openai_client()
 
