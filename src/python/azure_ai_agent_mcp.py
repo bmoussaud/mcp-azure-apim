@@ -54,77 +54,78 @@ def _process_mcp_approval_requests(response, approved_server_label: str = "setli
     return input_list
 
 load_dotenv()
-print("Setting up AI Project Client")
-print("AZURE_AI_AGENT_ENDPOINT:", os.environ.get("AZURE_AI_AGENT_ENDPOINT"))
-project_client = AIProjectClient(
-    endpoint=os.environ["AZURE_AI_AGENT_ENDPOINT"],
-    credential=DefaultAzureCredential(),
-)
 
-setlistfm_mcp_url = os.getenv("SETLISTAPI_MCP_ENDPOINT")
-print(f"Setting up Setlist FM plugin {setlistfm_mcp_url}")
-if not setlistfm_mcp_url:
-    print(
-        "SETLISTAPI_MCP_ENDPOINT environment variable is not set.")
-    raise ValueError(
-        "SETLISTAPI_MCP_ENDPOINT must be set in environment variables.")
+with (
+    DefaultAzureCredential() as credential,
+    AIProjectClient(endpoint=os.environ["AZURE_AI_AGENT_ENDPOINT"], credential=credential) as project_client,
+    project_client.get_openai_client() as openai_client,
+):
 
-existing_tool = MCPTool(
-        server_label="existing-mcp-tool",
-        require_approval="always",
-        project_connection_id="setlistfm-mcp-connection", 
-        server_url=setlistfm_mcp_url,
-        headers={'Ocp-Apim-Subscription-Key': str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))}
+    setlistfm_mcp_url = os.getenv("SETLISTAPI_MCP_ENDPOINT")
+    print(f"Setting up Setlist FM plugin {setlistfm_mcp_url}")
+    if not setlistfm_mcp_url:
+        raise ValueError(
+            "SETLISTAPI_MCP_ENDPOINT must be set in environment variables.")
+
+    existing_tool = MCPTool(
+            server_label="existing-mcp-tool",
+            require_approval="always",
+            project_connection_id="setlistfm-mcp-connection", 
+            server_url=setlistfm_mcp_url,
+            headers={'Ocp-Apim-Subscription-Key': str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))}
+            )
+
+
+    agent = project_client.agents.create_version(
+            agent_name="SetlistFM-MCP-Agent",
+            definition=PromptAgentDefinition(
+                model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
+                instructions=_get_agent_instructions(),
+                tools=[existing_tool],
+            ),
+        )
+    print(f"Created agent {agent.name}/{agent.id} using model:", os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"])
+    conversation = openai_client.conversations.create()
+    print(f"Created conversation (id: {conversation.id})")
+
+    # Reference the agent to get a response
+    TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
+    print("Sending request to agent...")
+    print("TASK:", TASK )
+    response = openai_client.responses.create(
+        conversation=conversation.id,
+        input=[{"role": "user", "content": TASK}],
+        extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
+    )
+
+
+    while True:
+        # Process any MCP approval requests that were generated
+        input_list = _process_mcp_approval_requests(response, approved_server_label=existing_tool.server_label)
+        if len(input_list) == 0:
+            #print("No MCP approval requests to process.")
+            #print("STOP: ", response.output)
+            break
+        else:
+            print(f"Processed {len(input_list)} MCP approval requests.")
+            # Send the approval response back to continue the agent's work
+            # This allows the MCP tool to access the SetlistFM servicenand complete the original request
+            response = openai_client.responses.create(
+                conversation=conversation.id,
+                input=input_list,
+                #previous_response_id=response.id,
+                extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
         )
 
-
-agent = project_client.agents.create_version(
-        agent_name="SetlistFM-MCP-Agent",
-        definition=PromptAgentDefinition(
-            model=os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"],
-            instructions=_get_agent_instructions(),
-            tools=[existing_tool],
-        ),
-    )
-print(f"Created agent {agent.name}/{agent.id} using model:", os.environ["AZURE_AI_MODEL_DEPLOYMENT_NAME"])
-
-openai_client = project_client.get_openai_client()
-
-# Reference the agent to get a response
-TASK = "Can you provide details about recent concerts and setlists in 2025 performed by the band Wolf Alice? Provide the average setlist length and the most frequently played songs."
-print("Sending request to agent...")
-print("TASK:", TASK )
-response = openai_client.responses.create(
-    input=[{"role": "user", "content": TASK}],
-    extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
-)
+    if debug:=os.getenv("DEBUG_AGENT_RESPONSE_OUTPUT", "false").lower() == "true":
+        print(f"Final Response: {response}")
+        for item in response.output:
+            print (item)
+            print(f"Response Item Type: {item.type}")
+            print(f"Response Item Content: {getattr(item, 'output', None)}")
 
 
-while True:
-    # Process any MCP approval requests that were generated
-    input_list = _process_mcp_approval_requests(response, approved_server_label=existing_tool.server_label)
-    if len(input_list) == 0:
-        print("No MCP approval requests to process.")
-        print("STOP: ", response.output)
-        break
-    else:
-        print(f"Processed {len(input_list)} MCP approval requests.")
-        # Send the approval response back to continue the agent's work
-        # This allows the MCP tool to access the SetlistFM servicenand complete the original request
-        response = openai_client.responses.create(
-            input=input_list,
-            previous_response_id=response.id,
-            extra_body={"agent": {"name": agent.name, "type": "agent_reference"}},
-    )
-
-print(f"Final Response: {response}")
-for item in response.output:
-    print (item)
-    print(f"Response Item Type: {item.type}")
-    print(f"Response Item Content: {getattr(item, 'output', None)}")
-
-
-print(f"=>Final Response: {response.output_text}")
+    print(f"=>Final Response: {response.output_text}")
 
 # Clean up resources by deleting the agent version
 # This prevents accumulation of unused agent versions in your project

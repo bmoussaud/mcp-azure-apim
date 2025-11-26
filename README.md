@@ -174,9 +174,9 @@ Response Item Content: {
 
 Once the conversation is finished, it is possible to view the executed thread in the [AI Foundry Portal](http://ai.azure.com):
 
-![MCP Azure AI Foundry](img/mcp_ai_foundry.png)
+![MCP Azure AI Foundry Conversation](img/mcp_ai_foundry_conversation.png)
 
-![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_thread_info.png)
+![MCP Azure AI Foundry Thread Info](img/mcp_ai_foundry_trace.png)
 
 ### 7. MCP Policies in APIM (EntraID)
 
