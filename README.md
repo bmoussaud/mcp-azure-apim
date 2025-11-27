@@ -1,5 +1,7 @@
 # MCP Azure APIM Workshop
 
+![MCP Azure APIM Workshop](img/logo_workshop.png)
+
 This workshop demonstrates how to use Azure API Management (APIM) to expose an existing REST API as a Model-Context-Protocol (MCP) Server. The MCP Server can then be consumed as a tool by various clients, including AI agents built with Azure AI services.
 
 What you will learn in this workshop:
