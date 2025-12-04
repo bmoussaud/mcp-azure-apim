@@ -55,6 +55,8 @@ This repository is configured using Azure Bicep, which defines the following res
 5. **SetlistFM API** provides access to the SetlistFM API, allowing users to retrieve setlist data using APIM.
 6. **Named Value for API Key** stores the API key securely for accessing the SetlistFM API.
 7. **Application Registration** in EntraID to manage OAuth2 Permission Scopes.
+8. **API Center** manages the MCP Registry. Once provisioned, goto the Azure portal to enable the APIC Center Portal. 
+
 
 ### 2. Expose API as an MCP Server
 

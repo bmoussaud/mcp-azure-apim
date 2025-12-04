@@ -122,7 +122,7 @@ module aiFoundry 'modules/ai-foundry.bicep' = {
       {
         name: 'gpt-4.1'
         model: 'gpt-4.1'
-        capacity: 100
+        capacity: 1
         deployment: 'GlobalStandard'
         version: '2025-04-14'
         format: 'OpenAI'
@@ -163,6 +163,17 @@ module apiManagement 'modules/api-management.bicep' = {
   }
 }
 
+module apiCenter 'modules/api-center.bicep' = {
+  name: 'api-center'
+  params: {
+    location: location
+    tags: tags
+    apiCenterName: 'mcpdemo-apicenter-${resourceToken}'
+    apimServiceName: apiManagement.outputs.name
+    apimResourceId: apiManagement.outputs.apimId
+  }
+}
+
 module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   name: 'setlist-mcp-app'
   params: {
@@ -170,18 +181,24 @@ module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   }
 }
 
-
+output API_CENTER_ENDPOINT string = apiCenter.outputs.apiCenterEndpoint
+output API_CENTER_NAME string = apiCenter.outputs.apiCenterName
+output AZURE_LOCATION string = location
+output AZURE_RESOURCE_GROUP string = resourceGroup().name
 output APIM_NAME string = apiManagement.outputs.name
-
+output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.outputs.connectionString
 output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
 output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
-
+output AZURE_AI_INFERENCE_API_KEY string = aiFoundry.outputs.aiFoundryInferenceKey
+output AZURE_AI_INFERENCE_ENDPOINT string = aiFoundry.outputs.aiFoundryInferenceEndpoint
+output AZURE_AI_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
+output AZURE_AI_PROJECT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
+output AZURE_LOG_LEVEL string = 'DEBUG'
+output MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
 output OAUTH_APP_ID string = setlistMcpApp.outputs.appId
 output OAUTH_TENANT_ID string = tenant().tenantId
-
 output SETLISTAPI_API_ID string = setlistFmApi.outputs.apiResourceId
 output SETLISTAPI_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}'
 output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}-mcp/mcp'
 output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPrimaryKey
-
 output SUBSCRIPTION_ID string = subscription().subscriptionId

@@ -25,3 +25,6 @@ __pycache__
 # file generated
 src/apim/setlistfm/mcp-policy-setlistfm-entra-id.xml
 infra/modules/Untitled-1.json
+apic.json
+apic2.json
+apisource.json
