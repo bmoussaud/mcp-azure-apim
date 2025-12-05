@@ -63,6 +63,7 @@ resource apiResource 'Microsoft.ApiCenter/services/workspaces/apiSources@2024-06
     azureApiManagementSource: {
       resourceId: apimResourceId
     }
+    importSpecification: 'always'
   }
   dependsOn: [
     apimRoleAssignments
@@ -114,5 +115,5 @@ resource apimMetadataSchema 'Microsoft.ApiCenter/services/metadataSchemas@2024-0
  */
 output apiCenterName string = apiCenterService.name
 output apiCenterId string = apiCenterService.id
-output apiCenterEndpoint string = apiCenterService.properties.provisioningState == 'Succeeded' ? 'https://${apiCenterService.name}.data.azure-apicenter.ms' : ''
-
+output apiCenterRuntimeEndpoint string = apiCenterService.properties.provisioningState == 'Succeeded' ? 'https://${apiCenterService.name}.data.${location}.azure-apicenter.ms' : ''
+output apiCenterPortalEndpoint string = apiCenterService.properties.provisioningState == 'Succeeded' ? 'https://${apiCenterService.name}.portal.${location}.azure-apicenter.ms' : ''

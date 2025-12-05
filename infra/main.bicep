@@ -168,7 +168,7 @@ module apiCenter 'modules/api-center.bicep' = {
   params: {
     location: location
     tags: tags
-    apiCenterName: 'mcpdemo-apicenter-${resourceToken}'
+    apiCenterName: 'mcp-demo-${resourceToken}'
     apimServiceName: apiManagement.outputs.name
     apimResourceId: apiManagement.outputs.apimId
   }
@@ -181,7 +181,7 @@ module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   }
 }
 
-output API_CENTER_ENDPOINT string = apiCenter.outputs.apiCenterEndpoint
+output API_CENTER_RUNTIME_ENDPOINT string = apiCenter.outputs.apiCenterRuntimeEndpoint
 output API_CENTER_NAME string = apiCenter.outputs.apiCenterName
 output AZURE_LOCATION string = location
 output AZURE_RESOURCE_GROUP string = resourceGroup().name

@@ -250,6 +250,53 @@ The options are:
 - `client_secret` uses the client_id, the client_secret and the tenant_id properties
 - `client_secret` uses the client_id, the client_secret and the tenant_id properties and MSAL (Microsoft Authentication Library) library. It’s a client SDK family (for Python, .NET, Java, JavaScript, etc.) that hides the wire details of standard identity protocols. Under the hood, MSAL talks to Microsoft Entra ID (formerly Azure AD) using OAuth 2.0 and OpenID Connect endpoints.
 
+
+## MCP Registry for GitHub Copilot and VSCode.
+
+Reference: [Locking Down MCP: Create a Private Registry on Azure API Center and Enforce It in GitHub Copilot And VS Code ](https://devblogs.microsoft.com/all-things-azure/locking-down-mcp-create-a-private-registry-on-azure-api-center-and-enforce-it-in-github-copilot-and-vs-code)
+
+```bash
+API_CENTER_RUNTIME_ENDPOINT=$(azd env get-value API_CENTER_RUNTIME_ENDPOINT)
+echo "MCP Registry: ${API_CENTER_RUNTIME_ENDPOINT}/workspaces/default/v0.1/servers"
+curl  ${API_CENTER_RUNTIME_ENDPOINT}/workspaces/default/v0.1/servers | jq
+```
+```
+MCP Registry: https://mcp-demo-iq6gqqdm2wnp6.data.swedencentral.azure-apicenter.ms/workspaces/default/v0.1/servers
+{
+  "servers": [
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+        "name": "2049090721144127476",
+        "description": "Setlist.fm MCP for concert details",
+        "version": "Original",
+        "remotes": [
+          {
+            "type": "sse",
+            "url": "apim-iq6gqqdm2wnp6.azure-api.net/setlistfm-mcp"
+          }
+        ]
+      },
+      "_meta": {
+        "io.modelcontextprotocol.registry/official": {
+          "status": "active",
+          "createdAt": "2025-12-05T10:48:11.8074044+00:00",
+          "updatedAt": "2025-12-05T10:48:15.2662824+00:00",
+          "isLatest": true
+        },
+        "x-ms-id": "c33a8142-4905-40c7-bbdc-fc6632ab3f3d"
+      }
+    },
+    {
+      "server": {
+        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+        "name": "13043750526061366627",
+        "description": "Proxy to Microsoft Learn API",
+        "version": "Original",
+        "remotes": [....
+```
+
+
 ### 8. Clean up
 
 ```bash
