@@ -253,7 +253,7 @@ The options are:
 
 ## MCP Registry for GitHub Copilot and VSCode.
 
-Reference: [Locking Down MCP: Create a Private Registry on Azure API Center and Enforce It in GitHub Copilot And VS Code ](https://devblogs.microsoft.com/all-things-azure/locking-down-mcp-create-a-private-registry-on-azure-api-center-and-enforce-it-in-github-copilot-and-vs-code)
+Reference: [Locking Down MCP: Create a Private Registry on Azure API Center and Enforce It in GitHub Copilot And VS Code ](https://devblogs.microsoft.com/all-things-azure/locking-down-mcp-create-a-private-registry-on-azure-api-center-and-enforce-it-in-github-copilot-and-vs-code) and https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry#option-2-using-azure-api-center-as-an-mcp-registry
 
 ```bash
 API_CENTER_RUNTIME_ENDPOINT=$(azd env get-value API_CENTER_RUNTIME_ENDPOINT)
