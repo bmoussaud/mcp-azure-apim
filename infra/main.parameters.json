@@ -15,7 +15,7 @@
       "value": "4b15bd76-3455-4f06-b606-293848fbad49"
     },
     "configureSetListfmMCP": {
-      "value": true
+      "value": false
     },
     "configureAPICenter": {
       "value": false
