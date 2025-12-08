@@ -57,6 +57,8 @@ This repository is configured using Azure Bicep, which defines the following res
 7. **Application Registration** in EntraID to manage OAuth2 Permission Scopes.
 8. **API Center** manages the MCP Registry. Once provisioned, goto the Azure portal to enable the APIC Center Portal. 
 
+*Note* the *API Center* is not configured by default, to enable it edit `infra/main.parameters.json` and set `configureAPICenter` with the value `True`
+
 
 ### 2. Expose API as an MCP Server
 
@@ -79,6 +81,8 @@ Test SetList FM API:
 ```
 
 The MCP Server is ready!
+
+*Note*  to enable this configuration managed by the bicep file, edit `infra/main.parameters.json` and set `configureSetListfmMCP` with the value `True`
 
 ### 3. Setup Python environment
 

@@ -12,6 +12,12 @@ param location string
 @description('Location for AI Foundry resources.')
 param aiFoundryLocation string
 
+@description('Configure Setlist.fm MCP API.')
+param configureSetListfmMCP bool = false
+
+@description('Configure API Center.')
+param configureAPICenter bool = false
+
 #disable-next-line no-unused-vars
 var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
 
@@ -35,7 +41,7 @@ module mslearn 'modules/mcp-proxy.bicep' = {
   }
 }
 
-module setlistFmMCP 'modules/mcp-api.bicep' = {
+module setlistFmMCP 'modules/mcp-api.bicep' = if (configureSetListfmMCP) {
   name: 'setlistfm-mcp'
   params: {
     apimName: apiManagement.outputs.name
@@ -143,7 +149,7 @@ module aiFoundryProject 'modules/ai-foundry-project.bicep' = {
 
     mcpConnection: {
       name: '${setlistFmApi.outputs.apiName}-mcp-connection'
-      target: 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmMCP.outputs.mcpPath}/mcp'
+      target: configureSetListfmMCP ? 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmMCP.outputs.mcpPath}/mcp' : 'http://localhost:3000/mcp'
       keys: {'Ocp-Apim-Subscription-Key': setlistFmApi.outputs.subscriptionPrimaryKey}
     }
   }
@@ -163,7 +169,7 @@ module apiManagement 'modules/api-management.bicep' = {
   }
 }
 
-module apiCenter 'modules/api-center.bicep' = {
+module apiCenter 'modules/api-center.bicep' = if (configureAPICenter) {
   name: 'api-center'
   params: {
     location: location
@@ -181,8 +187,8 @@ module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   }
 }
 
-output API_CENTER_RUNTIME_ENDPOINT string = apiCenter.outputs.apiCenterRuntimeEndpoint
-output API_CENTER_NAME string = apiCenter.outputs.apiCenterName
+output API_CENTER_RUNTIME_ENDPOINT string = configureAPICenter ? apiCenter.outputs.apiCenterRuntimeEndpoint : ''
+output API_CENTER_NAME string = configureAPICenter ? apiCenter.outputs.apiCenterName : ''
 output AZURE_LOCATION string = location
 output AZURE_RESOURCE_GROUP string = resourceGroup().name
 output APIM_NAME string = apiManagement.outputs.name
