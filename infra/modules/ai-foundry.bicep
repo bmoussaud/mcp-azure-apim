@@ -12,7 +12,7 @@ param azureAiUserRoleDefinitionId string = ''
 // Generate a deterministic GUID for the role assignment (only if a role id is provided)
 var azureAiUserRoleAssignmentName = empty(azureAiUserRoleDefinitionId) ? '' : guid(name, 'azure-ai-user', deployer().objectId)
 
-resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-07-01-preview' = {
+resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-09-01' = {
   name: name
   location: location
   tags: tags
@@ -59,5 +59,5 @@ output aiFoundryEndpoint string = aiFoundry.properties.endpoint
 output aiFoundryLocation string = aiFoundry.location
 output aiFoundryInferenceEndpoint string = '${aiFoundry.properties.endpoints['Azure AI Model Inference API']}models'
 output defaultModelDeploymentName string = modelDeploymentsParameters[0].name
-output aiFoundryInferenceKey string = aiFoundry.listKeys().key1
+//output aiFoundryInferenceKey string = aiFoundry.listKeys().key1
 // Output the role assignment name if created (empty string otherwise)
