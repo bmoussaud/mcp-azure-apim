@@ -40,7 +40,7 @@ import uuid
 from typing import Any
 
 import httpx
-from azure.identity.aio import DefaultAzureCredential
+from azure.identity.aio import ClientSecretCredential, DefaultAzureCredential
 
 # Configure logging
 logging.basicConfig(
@@ -68,6 +68,8 @@ class AgentIdentityBlueprintCreator:
         msi_name: str = "managed-identity",
         sponsor_user_id: str | None = None,
         owner_user_id: str | None = None,
+        client_id: str | None = None,
+        client_secret: str | None = None,
     ):
         self.tenant_id = tenant_id
         self.display_name = display_name
@@ -78,28 +80,46 @@ class AgentIdentityBlueprintCreator:
         # sponsors and owners.
         self.sponsor_user_id = sponsor_user_id
         self.owner_user_id = owner_user_id
-        self.credential: DefaultAzureCredential | None = None
+        # Service principal credentials (optional; if provided, used instead of DefaultAzureCredential)
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.credential: ClientSecretCredential | DefaultAzureCredential | None = None
         self.http_client: httpx.AsyncClient | None = None
         self.access_token: str | None = None
 
     async def __aenter__(self):
         """Async context manager entry.
 
-        Uses DefaultAzureCredential so that in local development it will
-        pick up your personal `az login` context, while still working with
-        other supported credential sources in CI/CD.
+        Uses ClientSecretCredential if client_id and client_secret are provided,
+        otherwise falls back to DefaultAzureCredential (which uses az login in local
+        development and other credential sources in CI/CD).
         """
-        # DefaultAzureCredential will use the Azure CLI context when available
-        logger.info(
-            "Initializing DefaultAzureCredential (will use az login context if available)"
-        )
-        self.credential = DefaultAzureCredential()
         self.http_client = httpx.AsyncClient(timeout=60.0)
+        
+        # Initialize credential: prefer ClientSecretCredential if provided, else DefaultAzureCredential
+        if self.client_id and self.client_secret:
+            logger.info(
+                f"Initializing ClientSecretCredential for app ID: {self.client_id}"
+            )
+            self.credential = ClientSecretCredential(
+                tenant_id=self.tenant_id,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+            )
+        else:
+            logger.info(
+                "Initializing DefaultAzureCredential (will use az login context if available)"
+            )
+            self.credential = DefaultAzureCredential()
+        
         # Get access token
         token = await self.credential.get_token(*GRAPH_SCOPES)
+        logger.info(f"Acquired access token for Microsoft Graph {token.token[:40]}***")
         self.access_token = token.token
+        
+        credential_type = "ClientSecretCredential" if self.client_id else "DefaultAzureCredential"
         logger.info(
-            "Successfully acquired Microsoft Graph access token using DefaultAzureCredential"
+            f"Successfully acquired Microsoft Graph access token using {credential_type}"
         )
         return self
 
@@ -187,11 +207,19 @@ class AgentIdentityBlueprintCreator:
         logger.info(f"Creating Agent Identity Blueprint: {self.display_name}")
 
         # Determine sponsor/owner IDs. If not explicitly provided, fall back
-        # to the current user resolved via /me.
+        # to the current user resolved via /me (only works with delegated auth).
         sponsor_id = self.sponsor_user_id
         owner_id = self.owner_user_id
 
         if not sponsor_id and not owner_id:
+            # Check if we're using service principal credentials
+            if self.client_id:
+                raise Exception(
+                    "When using service principal credentials (--client-id and --client-secret), "
+                    "you must explicitly provide sponsor and owner user IDs using "
+                    "--sponsor-user-id and --owner-user-id arguments. "
+                    "The /me endpoint is not available with application/service principal credentials."
+                )
             logger.info(
                 "No sponsor/owner specified; resolving current user and using as both "
                 "sponsor and owner."
@@ -227,7 +255,10 @@ class AgentIdentityBlueprintCreator:
 
         result = await self._make_request("POST", url, body)
         logger.info(
-            f"Created blueprint with id: {result.get('id')}, appId: {result.get('appId')}"
+            f"Created blueprint - Full response: {json.dumps(result, indent=2)}"
+        )
+        logger.info(
+            f"Created blueprint with object id: {result.get('id')}, appId: {result.get('appId')}"
         )
         return result
 
@@ -243,7 +274,8 @@ class AgentIdentityBlueprintCreator:
         """
         logger.info(f"Creating service principal for appId: {app_id}")
 
-        url = f"{GRAPH_BETA_URL}/servicePrincipals/microsoft.graph.agentIdentityBlueprintPrincipal"
+        # Try standard service principal creation endpoint first
+        url = f"{GRAPH_BETA_URL}/servicePrincipals"
         body = {
             "appId": app_id,
         }
@@ -397,6 +429,8 @@ async def main_async(args: argparse.Namespace) -> int:
             msi_name=args.msi_name,
             sponsor_user_id=args.sponsor_user_id,
             owner_user_id=args.owner_user_id,
+            client_id=args.client_id,
+            client_secret=args.client_secret,
         ) as creator:
             summary = await creator.run()
 
@@ -429,18 +463,32 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    # Create a blueprint with a managed identity
+    # Create a blueprint with a managed identity (uses DefaultAzureCredential/az login)
     python create-agent-identity-blueprint.py \\
         --display-name "FINBOT Agent Blueprint" \\
         --tenant-id "12345678-1234-1234-1234-123456789012" \\
         --msi-principal-id "87654321-4321-4321-4321-210987654321"
 
-    # With custom managed identity name
+    # With service principal credentials
     python create-agent-identity-blueprint.py \\
         --display-name "FINBOT Agent Blueprint" \\
         --tenant-id "12345678-1234-1234-1234-123456789012" \\
         --msi-principal-id "87654321-4321-4321-4321-210987654321" \\
-        --msi-name "finbot-prod-identity"
+        --client-id "app-id-from-service-principal" \\
+        --client-secret "secret-from-service-principal" \\
+        --sponsor-user-id "user-object-id-for-sponsor" \\
+        --owner-user-id "user-object-id-for-owner"
+
+    # With custom managed identity name and service principal
+    python create-agent-identity-blueprint.py \\
+        --display-name "FINBOT Agent Blueprint" \\
+        --tenant-id "12345678-1234-1234-1234-123456789012" \\
+        --msi-principal-id "87654321-4321-4321-4321-210987654321" \\
+        --msi-name "finbot-prod-identity" \\
+        --client-id "app-id-from-service-principal" \\
+        --client-secret "secret-from-service-principal" \\
+        --sponsor-user-id "user-object-id-for-sponsor" \\
+        --owner-user-id "user-object-id-for-owner"
 
 Required Permissions:
     - Agent ID Administrator or Agent ID Developer role
@@ -477,15 +525,25 @@ Reference:
         "--sponsor-user-id",
         help=(
             "Object ID of the user to set as sponsor of the blueprint. "
-            "If omitted, the current user (from /me) is used."
+            "If omitted with delegated auth (az login), the current user is used. "
+            "REQUIRED when using service principal credentials (--client-id and --client-secret)."
         ),
     )
     parser.add_argument(
         "--owner-user-id",
         help=(
             "Object ID of the user to set as owner of the blueprint. "
-            "If omitted, the current user (from /me) is used."
+            "If omitted with delegated auth (az login), the current user is used. "
+            "REQUIRED when using service principal credentials (--client-id and --client-secret)."
         ),
+    )
+    parser.add_argument(
+        "--client-id",
+        help="Service principal client ID (app ID). If provided with --client-secret, uses ClientSecretCredential instead of DefaultAzureCredential.",
+    )
+    parser.add_argument(
+        "--client-secret",
+        help="Service principal client secret. Required if --client-id is provided.",
     )
     parser.add_argument(
         "--log-level",
@@ -510,6 +568,10 @@ Reference:
 
     if not args.msi_principal_id or not args.msi_principal_id.strip():
         parser.error("--msi-principal-id cannot be empty")
+    
+    # Validate service principal credentials: both or neither
+    if bool(args.client_id) != bool(args.client_secret):
+        parser.error("Both --client-id and --client-secret must be provided together, or neither")
 
     return asyncio.run(main_async(args))
 
