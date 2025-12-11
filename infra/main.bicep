@@ -187,6 +187,13 @@ module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   }
 }
 
+resource myAgentManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+  name: 'my-agent-identity-${resourceToken}'
+  location: location
+}
+
+
+output MANAGED_IDENTITY_CLIENT_ID string = myAgentManagedIdentity.properties.clientId
 output API_CENTER_RUNTIME_ENDPOINT string = configureAPICenter ? apiCenter.outputs.apiCenterRuntimeEndpoint : ''
 output API_CENTER_NAME string = configureAPICenter ? apiCenter.outputs.apiCenterName : ''
 output AZURE_LOCATION string = location
