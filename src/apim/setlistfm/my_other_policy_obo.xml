@@ -1,0 +1,190 @@
+
+<policies>
+  <inbound>
+    <!-- 1. Normalisation & Correlation -->
+    <base />
+    <set-variable name="correlationId" value="@(Guid.NewGuid().ToString())" />
+    <set-header name="x-correlation-id" exists-action="override">
+      <value>@(context.Variables.GetValueOrDefault<string>("correlationId"))</value>
+    </set-header>
+    <set-variable name="requestedOperation" value="@(context.Operation?.Name ?? "unknown")" />
+    <set-variable name="requestedPath" value="@(context.Request.Url.Path)" />
+
+    <!-- 2. Sécurité réseau (optionnel) -->
+    <!-- Autoriser uniquement les IP du réseau Legrand/VPN / Egress de dev tools (VS Code, MCP Inspector) -->
+    <!--
+    <ip-filter action="allow">
+      <address-range from="1.2.3.4" to="1.2.3.4" />
+      <address-range from="5.6.7.0" to="5.6.7.255" />
+    </ip-filter>
+    -->
+
+    <!-- 3. Rate limiting (prévenir abus) -->
+    <rate-limit-by-key calls="300" renewal-period="60" counter-key="@(context.Request.IpAddress)" />
+
+    <!-- 4. AuthN: exiger un Bearer JWT d'Entra ID -->
+    <validate-jwt header-name="Authorization" failed-validation-httpcode="401" require-expiration-time="true" require-scheme="Bearer">
+      <!-- Autorités émettrices (Entra ID v2) -->
+      <issuer-signing-keys>
+        <!-- JWKS (OpenId) -->
+        <key>https://login.microsoftonline.com/{TENANT_ID}/discovery/v2.0/keys</key>
+      </issuer-signing-keys>
+      <audiences>
+        <!-- Audience de l'application "frontend" (APIM) qui reçoit le token utilisateur -->
+        <audience>api://{APIM_FRONT_APP_ID}</audience>
+        <!-- Optionnel : accepter aussi l’audience du MCP si le client obtient directement ce scope -->
+        <!-- <audience>api://{MCP_BACKEND_APP_ID}</audience> -->
+      </audiences>
+      <issuers>
+        <issuer>https://login.microsoftonline.com/{TENANT_ID}/v2.0</issuer>
+      </issuers>
+      <required-claims>
+        <!-- Scopes exigés pour consommer cette API APIM -->
+        <claim name="scp">
+          <value>mcp.read</value>
+          <value>mcp.invoke</value>
+        </claim>
+        <!-- Optionnel : vérifier l'appartenance au tenant Legrand -->
+        <claim name="tid">
+          <value>{TENANT_ID}</value>
+        </claim>
+      </required-claims>
+    </validate-jwt>
+
+    <!-- 5. Extraire identité & scopes pour logs -->
+    <set-variable name="callerObjectId" value="@(Jwt.FromHeader(context.Request.Headers.GetValueOrDefault("Authorization","")).GetClaimValue("oid"))" />
+    <set-variable name="callerUpn" value="@(Jwt.FromHeader(context.Request.Headers.GetValueOrDefault("Authorization","")).GetClaimValue("upn") ?? Jwt.FromHeader(context.Request.Headers.GetValueOrDefault("Authorization","")).GetClaimValue("preferred_username"))" />
+    <set-variable name="callerScopes" value="@(Jwt.FromHeader(context.Request.Headers.GetValueOrDefault("Authorization","")).GetClaimValue("scp"))" />
+
+    <!-- 6. (Option) OBO : échanger le token utilisateur contre un token pour le MCP Server -->
+    <!-- Activez cette section uniquement si le backend exige une audience différente -->
+    <choose>
+      <when condition="@((bool)context.Variables.GetValueOrDefault<bool>("useOBO", true))">
+        <set-variable name="oboToken" value="" />
+        <send-request mode="new" response-variable-name="oboResponse" timeout="30" ignore-errors="false">
+          <set-url>https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token</set-url>
+          <set-method>POST</set-method>
+          <set-header name="Content-Type" exists-action="override">
+            <value>application/x-www-form-urlencoded</value>
+          </set-header>
+          <set-body>@{
+              var authHeader = context.Request.Headers.GetValueOrDefault("Authorization","");
+              var userToken = authHeader?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true
+                              ? authHeader.Substring("Bearer ".Length)
+                              : "";
+              var form = $"client_id={Uri.EscapeDataString("{APIM_BACK_CLIENT_ID}")}&" +
+                         $"client_secret={Uri.EscapeDataString("{APIM_BACK_CLIENT_SECRET}")}&" + 
+                         $"grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&" + 
+                         $"requested_token_use=on_behalf_of&" +
+                         $"scope={Uri.EscapeDataString("api://{MCP_BACKEND_APP_ID}/.default")}&" + 
+                         $"assertion={Uri.EscapeDataString(userToken)}";
+              return form;
+          }</set-body>
+        </send-request>
+
+        <!-- Parse token -->
+        <set-variable name="oboToken" value="@{
+            var json = context.Variables.GetValueOrDefault<IResponse>("oboResponse")?.Body?.As<JObject>();
+            return json?["access_token"]?.ToString() ?? "";
+        }" />
+      </when>
+      <otherwise>
+        <set-variable name="oboToken" value="" />
+      </otherwise>
+    </choose>
+
+    <!-- 7. Choisir quel token propager vers le backend -->
+    <choose>
+      <when condition="@(!string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("oboToken")))">
+        <set-header name="Authorization" exists-action="override">
+          <value>@($"Bearer {context.Variables.GetValueOrDefault<string>("oboToken")}")</value>
+        </set-header>
+      </when>
+      <otherwise>
+        <!-- Propager le token utilisateur tel quel -->
+        <set-header name="Authorization" exists-action="override">
+          <value>@(context.Request.Headers.GetValueOrDefault("Authorization",""))</value>
+        </set-header>
+      </otherwise>
+    </choose>
+
+    <!-- 8. Anti-cache côté client -->
+    <set-header name="Cache-Control" exists-action="override">
+      <value>no-store</value>
+    </set-header>
+
+    <!-- 9. Traces personnalisées -->
+    <log-to-eventhub logger-id="appinsights-logger">
+      @{
+        var payload = new {
+          correlationId = context.Variables.GetValueOrDefault<string>("correlationId"),
+          user = context.Variables.GetValueOrDefault<string>("callerUpn"),
+          oid = context.Variables.GetValueOrDefault<string>("callerObjectId"),
+          scopes = context.Variables.GetValueOrDefault<string>("callerScopes"),
+          path = context.Variables.GetValueOrDefault<string>("requestedPath"),
+          op = context.Variables.GetValueOrDefault<string>("requestedOperation"),
+          useObo = !string.IsNullOrEmpty(context.Variables.GetValueOrDefault<string>("oboToken"))
+        };
+        return Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+      }
+    </log-to-eventhub>
+  </inbound>
+
+  <backend>
+    <!-- MCP Server URL (externe ou interne) -->
+    <base />
+    <!-- Optionnel : réécriture du chemin, mapping vers outil MCP -->
+    <!--
+    <rewrite-uri template="/tools/{toolName}" />
+    -->
+  </backend>
+
+  <outbound>
+    <base />
+    <!-- Latence & statut -->
+    <set-variable name="backendStatusCode" value="@(context.Response.StatusCode)" />
+    <set-variable name="backendLatencyMs" value="@(context.Response?.Duration?.TotalMilliseconds ?? 0)" />
+
+    <!-- Observabilité (App Insights / Event Hub) -->
+    <log-to-eventhub logger-id="appinsights-logger">
+      @{
+        var payload = new {
+          correlationId = context.Variables.GetValueOrDefault<string>("correlationId"),
+          status = context.Variables.GetValueOrDefault<int>("backendStatusCode"),
+          latencyMs = context.Variables.GetValueOrDefault<double>("backendLatencyMs")
+        };
+        return Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+      }
+    </log-to-eventhub>
+  </outbound>
+
+  <on-error>
+    <base />
+    <set-variable name="errorMessage" value="@(context.LastError?.Message)" />
+    <set-variable name="errorReason" value="@(context.LastError?.Reason)" />
+    <log-to-eventhub logger-id="appinsights-logger">
+      @{
+        var payload = new {
+          correlationId = context.Variables.GetValueOrDefault<string>("correlationId"),
+          error = context.Variables.GetValueOrDefault<string>("errorMessage"),
+          reason = context.Variables.GetValueOrDefault<string>("errorReason")
+        };
+        return Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+      }
+    </log-to-eventhub>
+    <return-response>
+      <set-status code="@(context.LastError?.StatusCode ?? 500)" reason="@(context.LastError?.Reason ?? "Internal Server Error")" />
+      <set-header name="x-correlation-id" exists-action="override">
+        <value>@(context.Variables.GetValueOrDefault<string>("correlationId"))</value>
+      </set-header>
+      <set-body>@{
+        var body = new {
+          error = "mcp_apim_error",
+          message = context.LastError?.Message,
+          correlationId = context.Variables.GetValueOrDefault<string>("correlationId")
+        };
+        return Newtonsoft.Json.JsonConvert.SerializeObject(body);
+      }</set-body>
+    </return-response>
+  </on-error>
+</policies>
