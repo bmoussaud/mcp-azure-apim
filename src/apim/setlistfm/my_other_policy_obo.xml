@@ -1,4 +1,4 @@
-
+<!-- https://github.com/microsoft/apim-auth-entraid-with-approles?tab=readme-ov-file  -->
 <policies>
   <inbound>
     <!-- 1. Normalisation & Correlation -->
