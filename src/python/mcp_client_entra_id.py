@@ -21,7 +21,6 @@ async def azure_default_credential_token():
     access_token = credential.get_token(scope)
     return access_token.token
 
-
 async def azure_client_secret_credential_token():
     print("Using ClientSecretCredential")
     from azure.identity import ClientSecretCredential
@@ -33,7 +32,6 @@ async def azure_client_secret_credential_token():
     scope = f"api://{os.getenv("OAUTH_APP_ID")}/.default"
     access_token = credential.get_token(scope)
     return access_token.token
-
 
 async def msal_token():
     print("Using MSAL ConfidentialClientApplication")
@@ -55,11 +53,17 @@ async def msal_token():
 async def main(access_token: str):
     print("👋 Starting client...")
     print(f"Using access token: {access_token}")
+    config= {
+            "mcpServers": {
+            "setlist": {
+                    "transport": "streamable-http",  # "http" or "sse" 
+                    "url": SETLISTAPI_MCP_ENDPOINT,
+                    "headers": {"Authorization": f"Bearer {access_token}"},
+                },
+            }
+        }
     try:
-        async with Client(transport=StreamableHttpTransport(
-            SETLISTAPI_MCP_ENDPOINT,
-            headers={"Authorization": f"Bearer {access_token}"},
-        ), ) as client:
+        async with Client(config) as client:
             assert await client.ping()
             print("✅ Successfully authenticated!")
 
@@ -71,10 +75,13 @@ async def main(access_token: str):
                 print(f"     Input Schema: {tool.inputSchema}")
 
             print("🔗 Search for artists with 'Coldplay' in the name")
-            searchForArtists = await client.call_tool("searchForArtists", arguments={'artistName': 'Coldplay'})
+            searchForArtists = await client.call_tool(
+                "searchForArtists", arguments={'artistName': 'Coldplay'}
+            )
+            #print(searchForArtists)
             print(render_artist_table(searchForArtists.content[0].text))
 
-            print("🔗 Get a list of setlists for Blondshell")
+            print("🔗 Get a list of setlists for Wolf Alice")
             searchForSetlists = await client.call_tool("searchForSetlists", arguments={'artistName': 'Wolf Alice', 'p': 1})
             print(render_setlist(searchForSetlists.content[0].text))
     except Exception as e:
