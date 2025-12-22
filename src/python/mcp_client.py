@@ -2,7 +2,6 @@ import asyncio
 import os
 from dotenv import load_dotenv
 from fastmcp.client import Client
-from fastmcp.client.transports import StreamableHttpTransport
 from render import render_artist_table, render_setlist
 
 load_dotenv()
@@ -12,13 +11,19 @@ SETLISTAPI_SUBSCRIPTION_KEY = str(os.getenv("SETLISTAPI_SUBSCRIPTION_KEY"))
 
 # SETLISTAPI_MCP_ENDPOINT = "https://mcp-azure-apim-api-management-dev.azure-api.net/setlistfm-mcp/mcp"
 print(f"🔗 Testing connection to {SETLISTAPI_MCP_ENDPOINT}...")
+config= {
+    "mcpServers": {
+       "setlist": {
+            "transport": "streamable-http",  # "http" or "sse" 
+            "url": SETLISTAPI_MCP_ENDPOINT,
+            "headers": {"Ocp-Apim-Subscription-Key": SETLISTAPI_SUBSCRIPTION_KEY},
+        },
+    }
+}
 
 async def main():
     try:
-        async with Client(transport=StreamableHttpTransport(
-            SETLISTAPI_MCP_ENDPOINT,
-            headers={"Ocp-Apim-Subscription-Key": SETLISTAPI_SUBSCRIPTION_KEY},
-        ), ) as client:
+        async with Client( config) as client:
             assert await client.ping()
             print("✅ Successfully authenticated!")
 
@@ -26,7 +31,7 @@ async def main():
             print(f"🔧 Available tools ({len(tools)}):")
             for tool in tools:
                 print(f"   - {tool.name}")
-                # print(f"     {tool.description}")
+                #print(f"     {tool.description}")
                 print(f"     Input Schema: {tool.inputSchema}")
 
             print("-------" * 18)
