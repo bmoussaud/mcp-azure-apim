@@ -5,14 +5,19 @@ description = "AI Foundry Agent using MCP server for Setlistfm API via Azure API
 authors = ["Benoit Moussaud <bmoussaud@microsoft.com>"]
 requires-python = ">=3.11"
 dependencies = [
-    "fastmcp>=2.12.0",
+    "fastmcp>=2.13.3",
     "python-dotenv",
     "azure-ai-projects~=2.0.0b2",
-    "azure-identity",
-    "azure-monitor-opentelemetry",
+    "azure-identity>=1.25.1",
+    "azure-monitor-opentelemetry>=1.6.4",
     "agent-framework",
     "msal",
     "openai~=2.0.1",
+    "logfire>=4.15.1",
+    "azure-core-tracing-opentelemetry>=1.0.0b12",
+    "opentelemetry-instrumentation-starlette>=0.49b0",
+     "msgraph-sdk>=1.0.0",
+      "dotenv-azd>=0.1.0",
 ]
 
 [tool.setuptools.packages.find]

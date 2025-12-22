@@ -2,8 +2,9 @@
 
 set -e
 
-# Generate end date 2 days from now (UTC) for short-lived secret.
-end_date=$(date -u -d '+2 days' '+%Y-%m-%dT%H:%M:%SZ')
+OAUTH_APP_ID=$(azd env get-value OAUTH_APP_ID)
+# Generate end date 21 days from now (UTC) for short-lived secret.
+end_date=$(date -u -d '+21 days' '+%Y-%m-%dT%H:%M:%SZ')
 
 client_secret=$(az ad app credential reset \
 	--id "${OAUTH_APP_ID}" \

@@ -4,5 +4,12 @@
         "windsurf": false,
         "cursor-global": false,
         "cursor-workspace": false
+    },
+    "chat.mcp.serverSampling": {
+        "mcp-azure-apim/.vscode/mcp.json: local": {
+            "allowedModels": [
+                "copilot/claude-sonnet-4.5"
+            ]
+        }
     }
 }

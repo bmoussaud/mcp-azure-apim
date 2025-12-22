@@ -183,7 +183,14 @@ module apiCenter 'modules/api-center.bicep' = if (configureAPICenter) {
 module setlistMcpApp 'modules/setlist-mcp-app-reg.bicep' = {
   name: 'setlist-mcp-app'
   params: {
-    appName: 'setlist-mcp-app-${resourceToken}'
+    appName: 'benoit-setlist-mcp-app-${resourceToken}'
+  }
+}
+
+module fastmcpApp 'modules/fastmcp-app-reg.bicep' = {
+  name: 'fastmcp-app'
+  params: {
+    appName: 'benoit-fastmcp-app-${resourceToken}'
   }
 }
 
@@ -210,8 +217,10 @@ output AZURE_LOG_LEVEL string = 'DEBUG'
 output MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
 output OAUTH_APP_ID string = setlistMcpApp.outputs.appId
 output OAUTH_TENANT_ID string = tenant().tenantId
+output AZURE_TENANT_ID string = tenant().tenantId
 output SETLISTAPI_API_ID string = setlistFmApi.outputs.apiResourceId
 output SETLISTAPI_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}'
 output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiManagementProxyHostName}/${setlistFmApi.outputs.apiPath}-mcp/mcp'
 output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPrimaryKey
 output SUBSCRIPTION_ID string = subscription().subscriptionId
+output ENTRA_PROXY_AZURE_CLIENT_ID string = fastmcpApp.outputs.appId

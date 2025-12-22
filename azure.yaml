@@ -16,7 +16,9 @@ hooks:
     - shell: sh
       run: ./hooks/gen_mcp_entraid_policy.sh
     - shell: sh
-      run: ./hooks/gen_python_env.sh
+      run: ./hooks/gen_client_secret_1.sh
+    - shell: sh
+      run: ./hooks/gen_client_secret_2.sh
     # Generate and export Azure access token using azd auth
     - shell: sh
       run: ./hooks/gen_access_token.sh
