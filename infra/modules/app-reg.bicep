@@ -1,7 +1,10 @@
 extension graphBeta
 
 param appName string
-param today string = utcNow()
+param appDescription string 
+param preAuthorizedApplication string = ''
+param permission string
+param redirectUris array = []
 
 resource application  'Microsoft.Graph/applications@beta' = {
   uniqueName: appName
@@ -15,42 +18,29 @@ resource application  'Microsoft.Graph/applications@beta' = {
     requestedAccessTokenVersion: 2
     oauth2PermissionScopes: [
       {
-        id: guid(subscription().id, appName, 'mcp-access')
-        adminConsentDescription: 'Allows access to the FastMCP server as the signed-in user.'
-        adminConsentDisplayName: 'Access FastMCP Server'
+        id: guid(subscription().id, appName, permission)
+        adminConsentDescription: 'Allows access to the ${appDescription} as the signed-in user.'
+        adminConsentDisplayName: 'Access ${appDescription}'
         isEnabled: true
         type: 'User'
-        value: 'mcp-access'
-        userConsentDescription: 'Allow access to the FastMCP server on your behalf'
-        userConsentDisplayName: 'Access FastMCP Server'
+        value: permission
+        userConsentDescription: 'Allow access to the ${appDescription} on your behalf'
+        userConsentDisplayName: 'Access ${appDescription}'
       }
     ]
     
-    preAuthorizedApplications: [
+    preAuthorizedApplications:  (preAuthorizedApplication != '')? [
       {
-        //appId: 'd4f80fbc-bfc9-4c81-849f-16ced65f5f0f' // VS code
-        appId: '04b07795-8ddb-461a-bbee-02f9e1bf7b46' // Azure CLI
+        appId: preAuthorizedApplication // VS code
+        //appId: '04b07795-8ddb-461a-bbee-02f9e1bf7b46' // Azure CLI
         permissionIds: [
-          guid(subscription().id, appName, 'mcp-access')
+          guid(subscription().id, appName, permission)
         ]
       }
-    ]
+    ] : []
   }
   web: {
-    redirectUris: [
-      'http://127.0.0.1:33427'
-			'http://127.0.0.1:33426'
-			'http://127.0.0.1:33425'
-			'http://127.0.0.1:33424'
-			'http://127.0.0.1:33423'
-			'http://127.0.0.1:33422'
-			'http://127.0.0.1:33421'
-			'http://127.0.0.1:33420'
-			'http://127.0.0.1:33419'
-			'http://127.0.0.1:33418'
-			'https://vscode.dev/redirect'
-			'http://localhost:8000/auth/callback'
-    ]
+    redirectUris: redirectUris
     implicitGrantSettings: {
       enableIdTokenIssuance: false
       enableAccessTokenIssuance: false

@@ -194,6 +194,39 @@ module fastmcpApp 'modules/fastmcp-app-reg.bicep' = {
   }
 }
 
+module fastMCPClientApp 'modules/app-reg.bicep' = {
+  name: 'fastmcp-client-app'
+  params: {
+    appName: 'fastmcp-client-app-${resourceToken}'
+    appDescription: 'FastMCP Client'
+    permission: 'mcp-access'
+  }
+}
+
+module fastMCPServerApp 'modules/app-reg.bicep' = {
+  name: 'fastmcp-server-app'
+  params: {
+    appName: 'fastmcp-server-app-${resourceToken}'
+    appDescription: 'FastMCP Server'
+    permission: 'mcp-access'
+    preAuthorizedApplication: fastMCPClientApp.outputs.appId
+    redirectUris: [
+      'http://127.0.0.1:33427'
+			'http://127.0.0.1:33426'
+			'http://127.0.0.1:33425'
+			'http://127.0.0.1:33424'
+			'http://127.0.0.1:33423'
+			'http://127.0.0.1:33422'
+			'http://127.0.0.1:33421'
+			'http://127.0.0.1:33420'
+			'http://127.0.0.1:33419'
+			'http://127.0.0.1:33418'
+			'https://vscode.dev/redirect'
+			'http://localhost:8000/auth/callback'
+    ]
+  }
+}
+
 resource myAgentManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: 'my-agent-identity-${resourceToken}'
   location: location
@@ -224,3 +257,7 @@ output SETLISTAPI_MCP_ENDPOINT string = 'https://${apiManagement.outputs.apiMana
 output SETLISTAPI_SUBSCRIPTION_KEY string = setlistFmApi.outputs.subscriptionPrimaryKey
 output SUBSCRIPTION_ID string = subscription().subscriptionId
 output ENTRA_PROXY_AZURE_CLIENT_ID string = fastmcpApp.outputs.appId
+output SETLISTFM_API_KEY string = '4b15bd76-3455-4f06-b606-293848fbad49'
+
+output FASTMCP_SERVER_APP_ID string = fastMCPServerApp.outputs.appId
+output FASTMCP_CLIENT_APP_ID string = fastMCPClientApp.outputs.appId

@@ -1,0 +1,10 @@
+[
+  {
+    "allowedMemberTypes": ["Application"],
+    "description": "Allow application to access MCP Server",
+    "displayName": "MCPAccess",
+    "id": "6c115bd7-2cdd-4ff6-b7ba-c7821f547d08",
+    "isEnabled": true,
+    "value": "mcpaccess"
+  }
+]

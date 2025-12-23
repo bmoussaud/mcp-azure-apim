@@ -8,16 +8,14 @@ from datetime import date
 from enum import Enum
 from typing import Annotated
 
-import logfire
+import httpx
 from azure.core.settings import settings
 
 from azure.monitor.opentelemetry import configure_azure_monitor
 
 from dotenv import load_dotenv
 from fastmcp import Context, FastMCP
-from fastmcp.server.auth import RemoteAuthProvider
 from fastmcp.server.auth.providers.azure import AzureProvider
-from fastmcp.server.auth.providers.jwt import JWTVerifier
 from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from fastmcp.utilities.logging import configure_logging, get_logger
@@ -67,11 +65,11 @@ auth = None
 oauth_client_store = MemoryStore()
 
 # VS Code Dynamic Auth Provider client ID (pre-registered)
-VSCODE_CLIENT_IDS = ['d4f80fbc-bfc9-4c81-849f-16ced65f5f0f','d7acbbc6-5aad-4e05-9aa8-e01f3a967f70']
+VSCODE_CLIENT_IDS = ['d4f80fbc-bfc9-4c81-849f-16ced65f5f0f','d7acbbc6-5aad-4e05-9aa8-e01f3a967f70','ea4de7f8-db02-4856-99b5-0d379cd067e7']
 # Validate required environment variables
 required_env_vars = [
-    "ENTRA_PROXY_AZURE_CLIENT_ID",
-    "ENTRA_PROXY_AZURE_CLIENT_SECRET",
+    "FASTMCP_SERVER_APP_ID",
+    "FASTMCP_SERVER_CLIENT_SECRET",
     "OAUTH_TENANT_ID",
 ]
 if RUNNING_IN_PRODUCTION:
@@ -86,11 +84,11 @@ if RUNNING_IN_PRODUCTION:
 else:
     entra_base_url = "http://localhost:8000"
 
-logger.info("Client_id: %s", os.environ["ENTRA_PROXY_AZURE_CLIENT_ID"])
+logger.info("Client_id: %s", os.environ["FASTMCP_SERVER_APP_ID"])
 
 auth = AzureProvider(
-    client_id=os.environ["ENTRA_PROXY_AZURE_CLIENT_ID"],
-    client_secret=os.environ["ENTRA_PROXY_AZURE_CLIENT_SECRET"],
+    client_id=os.environ["FASTMCP_SERVER_APP_ID"],
+    client_secret=os.environ["FASTMCP_SERVER_CLIENT_SECRET"],
     tenant_id=os.environ["OAUTH_TENANT_ID"],
     base_url=entra_base_url,
     required_scopes=["mcp-access"],
@@ -148,30 +146,59 @@ class UserAuthMiddleware(Middleware):
             context.fastmcp_context.set_state("user_id", user_id)
         return await call_next(context)
 
+headers = {
+    "x-api-key": '4b15bd76-3455-4f06-b606-293848fbad49',
+    "Accept": "application/json",
+    "User-Agent": "setlistfm-mcp/1.0"
+}
+client = httpx.AsyncClient(base_url="https://api.setlist.fm/rest",
+                           headers=headers)
+mcp = FastMCP.from_openapi(openapi_spec=httpx.get("https://api.setlist.fm/docs/1.0/ui/swagger.json").json(), 
+                           client=client,
+                           name="EntraID SetList FM MCP", version="0.1.0",
+                           mcp_names={
+                                "resource__1.0_artist__mbid__getArtist_GET": "getArtist",
+                                "resource__1.0_artist__mbid__setlists_getArtistSetlists_GET": "getArtistSetlists",
+                                "resource__1.0_city__geoId__getCity_GET": "getCity",
+                                "resource__1.0_search_artists_getArtists_GET": "getArtists",
+                                "resource__1.0_search_cities_getCities_GET": "getCities",
+                                "resource__1.0_search_countries_getCountries_GET": "getCountries",
+                                "resource__1.0_search_setlists_getSetlists_GET": "getSetlists",
+                                "resource__1.0_search_venues_getVenues_GET": "getVenues",
+                                "resource__1.0_setlist_version__versionId__getSetlistVersion_GET": "getSetlistVersion",
+                                "resource__1.0_setlist__setlistId__getSetlist_GET": "getSetlist",
+                                "resource__1.0_user__userId__getUser_GET": "getUser",
+                                "resource__1.0_user__userId__attended_getUserAttendedSetlists_GET": "getUserAttendedSetlists",
+                                "resource__1.0_user__userId__edited_getUserEditedSetlists_GET": "getUserEditedSetlists",
+                                "resource__1.0_venue__venueId__getVenue_GET": "getVenue",
+                                "resource__1.0_venue__venueId__setlists_getVenueSetlists_GET": "getVenueSetlists",
+                            },
+                           auth=auth, middleware=[OpenTelemetryMiddleware("SetListFM_MCP"), UserAuthMiddleware()])
+
 
 # Create the MCP server
-mcp = FastMCP("SetList FM MCP", auth=auth, middleware=[OpenTelemetryMiddleware("SetListFM_MCP"), UserAuthMiddleware()])
+#mcp = FastMCP("SetList FM MCP", auth=auth, middleware=[OpenTelemetryMiddleware("SetListFM_MCP"), UserAuthMiddleware()])
 
 @mcp.tool
-async def search_setlists(
-    date: Annotated[date, "Date of the expense in YYYY-MM-DD format"],
-    artistName: Annotated[str, "Name of the artist to search for"],
-    ctx: Context,
-):
-    """Add a new expense to Cosmos DB."""
-    logger.info(f"Searching setlist for artist {artistName} on date {date.isoformat()}")
-    return f"Setlist search for {artistName} on {date.isoformat()} is not yet implemented."
-
-@mcp.tool
-async def search_artists(ctx: Context, artist_name: Annotated[str, "Name of the artist to search for"]):
-    """Search in the Selistify API for an artist by name."""
-
-    try:
-        return f"Artist search for {artist_name} is not yet implemented."
-    except Exception as e:
-        logger.error(f"Error reading expenses: {str(e)}")
-        return f"Error: Unable to retrieve expense data - {str(e)}"
-
+async def get_user_info(ctx: Context) -> dict:
+    """Returns information about the authenticated Azure user."""
+    from fastmcp.server.dependencies import get_access_token, AccessToken
+    
+    token : AccessToken = get_access_token()
+    #user_id populated by UserAuthMiddleware
+    user_id = ctx.get_state("user_id")
+    # The AzureProvider stores user data in token claims
+    return {
+        "user_id": user_id,
+        "client_id": token.client_id,
+        "token_id": token.token,
+        "scopes": token.scopes,
+        "azure_id": token.claims.get("sub"),
+        "email": token.claims.get("email"),
+        "name": token.claims.get("name"),
+        "job_title": token.claims.get("job_title"),
+        "office_location": token.claims.get("office_location")
+    }
 
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(_request):

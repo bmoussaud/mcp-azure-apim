@@ -18,6 +18,7 @@ dependencies = [
     "opentelemetry-instrumentation-starlette>=0.49b0",
      "msgraph-sdk>=1.0.0",
       "dotenv-azd>=0.1.0",
+    "httpx"
 ]
 
 [tool.setuptools.packages.find]
