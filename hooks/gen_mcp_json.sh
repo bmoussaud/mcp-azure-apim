@@ -12,7 +12,8 @@ cat <<EOF > .vscode/mcp.json
 			"headers": {
 				"Ocp-Apim-Subscription-Key":"${SETLISTAPI_SUBSCRIPTION_KEY}"
 			}
-		}
+		},
+		
 	},
 	"inputs": []
 }

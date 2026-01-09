@@ -35,10 +35,16 @@ module mslearn 'modules/mcp-proxy.bicep' = {
       displayName: 'Microsoft Learn API MCP'
       path: 'mslearn-mcp'
       url: 'https://learn.microsoft.com'
-      policyXml: loadTextContent('../src/apim/setlistfm/mcp-policy-setlistfm.xml')
-      uriTemaplate: '/api/mcp'
+      policyXml: loadTextContent('../src/apim/mslearn/mcp-policy-mslearn.xml')
+      prmPolicyXml: loadTextContent('../src/apim/mslearn/mcp-prm-policy-mslearn.xml')
+      uriTemplate: '/api/mcp'
     }
-  }
+  } 
+  dependsOn: [
+    mcpMSLearnApp
+    mcpTenantIdNamedValue
+    APIMGatewayURLNamedValue
+  ]
 }
 
 module setlistFmMCP 'modules/mcp-api.bicep' = if (configureSetListfmMCP) {
@@ -200,6 +206,46 @@ module fastMCPClientApp 'modules/app-reg.bicep' = {
     appName: 'fastmcp-client-app-${resourceToken}'
     appDescription: 'FastMCP Client'
     permission: 'mcp-access'
+  }
+}
+
+module mcpMSLearnApp 'modules/app-reg.bicep' = {
+  name: 'mcp-mslearn-app'
+  params: {
+    appName: 'mcp-mslearn-app-${resourceToken}'
+    appDescription: 'MCP Learn resources'
+    permission: 'user_impersonate'
+    preAuthorizedApplication: 'aebc6443-996d-45c2-90f0-388ff96faa56' // VS Code
+  }
+}
+
+module mcpTenantIdNamedValue  'modules/named-value.bicep' = {
+  name: 'mcpTenantIdNamedValue'
+  params: {
+    apimName: apiManagement.outputs.name
+    namedValueName: 'McpTenantId'
+    namedValueValue: tenant().tenantId
+    namedValueIsSecret: false
+  }
+}
+
+module mcpClientIdNamedValue 'modules/named-value.bicep' = {
+  name: 'mcpClientIdNamedValue'
+  params: {
+    apimName: apiManagement.outputs.name
+    namedValueName: 'McpMSLearnClientId'
+    namedValueValue: mcpMSLearnApp.outputs.appId
+    namedValueIsSecret: false
+  }
+}
+
+module APIMGatewayURLNamedValue   'modules/named-value.bicep' = {
+  name: 'APIMGatewayURLNamedValue'
+  params: {
+    apimName: apiManagement.outputs.name
+    namedValueName: 'APIMGatewayURL'
+    namedValueValue: apiManagement.outputs.apiManagementGatewayUrl
+    namedValueIsSecret: false
   }
 }
 

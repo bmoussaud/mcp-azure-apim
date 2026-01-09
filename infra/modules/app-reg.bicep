@@ -6,6 +6,9 @@ param preAuthorizedApplication string = ''
 param permission string
 param redirectUris array = []
 
+@description('Tenant ID where the application is registered')
+param tenantId string = tenant().tenantId
+
 resource application  'Microsoft.Graph/applications@beta' = {
   uniqueName: appName
   displayName: appName
@@ -33,6 +36,7 @@ resource application  'Microsoft.Graph/applications@beta' = {
       {
         appId: preAuthorizedApplication // VS code
         //appId: '04b07795-8ddb-461a-bbee-02f9e1bf7b46' // Azure CLI
+        //appId: ''aebc6443-996d-45c2-90f0-388ff96faa56' // VS Code
         permissionIds: [
           guid(subscription().id, appName, permission)
         ]
@@ -48,6 +52,7 @@ resource application  'Microsoft.Graph/applications@beta' = {
   }
 }
 
+//define the service principal for the application and assign ownership to the deployer
 resource servicePrincipal 'Microsoft.Graph/servicePrincipals@beta' = {
   appId: application.appId
   accountEnabled: true
@@ -72,5 +77,6 @@ resource applicationOveride 'Microsoft.Graph/applications@beta' = {
 output appId string = application.appId
 output appObjectId string = application.id
 output servicePrincipalId string = servicePrincipal.id
+output mcpAppTenantId string = tenantId
 // Note: App secret must be created manually or via deployment script due to Graph API restrictions
 // output appSecret string = 'Create manually via Azure CLI: az ad app credential reset --id ${application.appId}'

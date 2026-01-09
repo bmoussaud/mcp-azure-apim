@@ -97,6 +97,7 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2024-10-01-previe
 //output apiManagementInternalIPAddress string = apiManagementService.properties.publicIPAddresses[0]
 output apiManagementIdentityPrincipalId string = apiManagementService.identity.principalId
 output name string = apiManagementService.name
+output apiManagementGatewayUrl string = apiManagementService.properties.gatewayUrl
 output apiManagementProxyHostName string = apiManagementService.properties.hostnameConfigurations[0].hostName
 //output apiManagementDeveloperPortalHostName string = replace(apiManagementService.properties.developerPortalUrl, 'https://', '')
 output aiLoggerId string = apiManagementService::aiLogger.id
