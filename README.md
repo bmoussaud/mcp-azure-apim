@@ -2,6 +2,10 @@
 
 ![MCP Azure APIM Workshop](img/logo_workshop.png)
 
+
+https://github.com/user-attachments/assets/30afb0c0-02a4-41a1-ad30-c4eb8aa3d9bc
+
+
 ## Table of Contents
 
 - [Documentation](#documentation)
