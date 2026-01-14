@@ -255,6 +255,110 @@ The options are:
 - `client_secret` uses the client_id, the client_secret and the tenant_id properties and MSAL (Microsoft Authentication Library) library. It’s a client SDK family (for Python, .NET, Java, JavaScript, etc.) that hides the wire details of standard identity protocols. Under the hood, MSAL talks to Microsoft Entra ID (formerly Azure AD) using OAuth 2.0 and OpenID Connect endpoints.
 
 
+### 8. Secure MCP MS Learn using EntraID and APIM
+
+The Microsoft [Learn MCP Server](https://learn.microsoft.com/en-us/training/support/mcp) enables clients like GitHub Copilot and other AI agents to bring trusted and up-to-date information directly from Microsoft's official documentation. It is a remote MCP server that uses streamable http. It allows to search through documentation, fetch a complete article, and search through code samples. The aim of this sample is to proxy the MCP Server and to secure its access.
+
+On the EntraID side, an Entra ID (Azure AD) application registration provides the OAuth2/OIDC authentication for the Microsoft Learn MCP proxy.
+On the APIM side, Deployment of an MCP (Model Context Protocol) proxy API in Azure API Management that serves as a gateway to the Microsoft Learn documentation and code sample APIs.
+
+Two Bicep Modules manages this configuration:
+the module mslearn [mcp-proxy.bicep](infra/modules/mcp-proxy.bicep)
+* Creates an MCP-type API in APIM with streamable transport
+* Configures a backend pointing to https://learn.microsoft.com/api/mcp
+* Applies custom policy configurations loaded from src/apim/mslearn/mcp-policy-mslearn.xml
+* Implements Protected Resource Metadata (PRM) endpoints per RFC 9728:
+  *  server-specific PRM endpoint at /.well-known/oauth-protected-resource within the MCP API
+  * A global dynamic discovery endpoint for MCP resource metadata
+* Configures OAuth2 authentication settings for the MCP proxy
+
+the module mcpMSLearnApp [app-reg.bicep](infra/modules/app-reg.bicep)
+* Application Name: mcp-proxy-mslearn (with resource token suffix)
+* Permission Scope: Exposes a user_impersonate OAuth2 permission scope
+* Pre-authorized Application: VS Code (aebc6443-996d-45c2-90f0-388ff96faa56) is pre-authorized to access this scope without requiring user consent
+
+Authentication Flow:
+This app registration enables:
+
+* Client applications (like VS Code) to authenticate users via OAuth2
+* Users to delegate access to Microsoft Learn resources through the MCP proxy
+* APIM policies to validate bearer tokens against this Entra ID application
+
+
+Based on the traces, here's a Mermaid sequence diagram showing the MCP server initialization flow with OAuth2 discovery:
+
+This diagram illustrates:
+
+1. Lifecycle: Start sequence
+1. OAuth2/OIDC Discovery (RFC 9728): The authentication discovery flow with multiple fallback attempts
+1. Resource Metadata Discovery: Finding the APIM protected resource metadata
+1. Authorization Server Discovery: Locating the Entra ID OpenID configuration
+1. MCP Protocol Handshake: Initialize request/response and capability exchange
+1. Tool Discovery: Listing available MCP tools (3 Microsoft Learn documentation tools)
+1. The key security pattern shown is the Protected Resource Metadata (PRM) discovery mechanism where the MCP client automatically discovers OAuth2 endpoints by following WWW-Authenticate challenges and well-known discovery URLs.
+
+```mermaid
+sequenceDiagram
+    participant VSCode as VS Code Editor
+    participant MCP as MCP Server<br/>(secured-mslearn)
+    participant APIM as Azure APIM Gateway<br/>(mslearn-mcp)
+    participant EntraID as Microsoft Entra ID<br/>(login.microsoftonline.com)
+    
+    VSCode->>MCP: Start server
+    activate MCP
+    Note over MCP: Connection State: Starting
+    Note over MCP: Connection State: Running
+    MCP-->>VSCode: Server ready
+    
+    Note over VSCode,EntraID: MCP Initialization & OAuth Discovery (RFC 9728)
+    
+    VSCode->>MCP: initialize (protocolVersion: 2025-11-25)
+    Note over MCP: Detecting authentication requirements...
+    
+    MCP->>APIM: HTTP Request (attempt connection)
+    APIM-->>MCP: 401 Unauthorized<br/>WWW-Authenticate: resource_metadata=<URL>
+    Note over MCP: Found resource_metadata challenge
+    
+    MCP->>APIM: GET /.well-known/oauth-protected-resource<br/>(server-specific endpoint)
+    APIM-->>MCP: 401 Unauthorized
+    Note over MCP: Warning: Failed to fetch from server-specific endpoint
+    
+    MCP->>APIM: GET /.well-known/oauth-protected-resource/mslearn-mcp<br/>(global discovery endpoint)
+    APIM-->>MCP: 200 OK + Resource Metadata<br/>(auth_server: tenant URL)
+    Note over MCP: Discovered resource metadata<br/>Auth server: .../be38c437.../v2.0
+    
+    MCP->>EntraID: GET /.well-known/oauth-authorization-server/<tenant>/v2.0
+    EntraID-->>MCP: 404 Not Found
+    Note over MCP: Warning: OAuth authorization server endpoint failed
+    
+    MCP->>EntraID: GET /.well-known/openid-configuration/<tenant>/v2.0
+    EntraID-->>MCP: 404 Not Found
+    Note over MCP: Warning: Direct OpenID config path failed
+    
+    MCP->>EntraID: GET /<tenant>/v2.0/.well-known/openid-configuration
+    EntraID-->>MCP: 200 OK + OpenID Configuration<br/>(token_endpoint, authorization_endpoint, etc.)
+    Note over MCP: Discovered authorization server metadata
+    
+    Note over VSCode,MCP: MCP Protocol Exchange
+    
+    VSCode->>VSCode: Waiting for initialize response (5s)...
+    
+    MCP-->>VSCode: initialize result<br/>(capabilities, serverInfo, instructions)
+    Note over VSCode: Server: Microsoft Learn MCP Server v1.0.0<br/>3 tools available
+    
+    VSCode->>MCP: logging/setLevel (level: debug)
+    VSCode->>MCP: notifications/initialized
+    VSCode->>MCP: prompts/list
+    VSCode->>MCP: tools/list
+    
+    MCP-->>VSCode: prompts/list result (empty)
+    MCP-->>VSCode: logging/setLevel result (success)
+    MCP-->>VSCode: tools/list result<br/>(microsoft_docs_search,<br/>microsoft_code_sample_search,<br/>microsoft_docs_fetch)
+    
+    Note over VSCode: Discovered 3 tools<br/>Server ready for use
+    deactivate MCP
+```
+
 ## MCP Registry for GitHub Copilot and VSCode.
 
 Reference: [Locking Down MCP: Create a Private Registry on Azure API Center and Enforce It in GitHub Copilot And VS Code ](https://devblogs.microsoft.com/all-things-azure/locking-down-mcp-create-a-private-registry-on-azure-api-center-and-enforce-it-in-github-copilot-and-vs-code) and https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry#option-2-using-azure-api-center-as-an-mcp-registry
