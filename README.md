@@ -3,9 +3,6 @@
 ![MCP Azure APIM Workshop](img/logo_workshop.png)
 
 
-https://github.com/user-attachments/assets/30afb0c0-02a4-41a1-ad30-c4eb8aa3d9bc
-
-
 ## Table of Contents
 
 - [Documentation](#documentation)
@@ -279,6 +276,10 @@ The options are:
 The Microsoft [Learn MCP Server](https://learn.microsoft.com/en-us/training/support/mcp) enables clients like GitHub Copilot and other AI agents to bring trusted and up-to-date information directly from Microsoft's official documentation. It is a remote MCP server that uses streamable http. It allows to search through documentation, fetch a complete article, and search through code samples. The aim of this sample is to proxy the MCP Server and to secure its access.
 
 This configuration has been tested using GitHub Copilot. The execution of `azd provision` command configures Azure APIM & Azure EntraID and update the [mcp.json](.vscode/mcp.json) file.
+
+<video src="https://github.com/user-attachments/assets/30afb0c0-02a4-41a1-ad30-c4eb8aa3d9bc" width="600" autoplay loop muted>
+   Your browser does not support the video tag.
+</video>
 
 On the EntraID side, an Entra ID (Azure AD) application registration provides the OAuth2/OIDC authentication for the Microsoft Learn MCP proxy.
 On the APIM side, Deployment of an MCP (Model Context Protocol) proxy API in Azure API Management that serves as a gateway to the Microsoft Learn documentation and code sample APIs.
