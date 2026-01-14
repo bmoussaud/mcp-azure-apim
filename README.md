@@ -2,6 +2,21 @@
 
 ![MCP Azure APIM Workshop](img/logo_workshop.png)
 
+## Table of Contents
+
+- [Documentation](#documentation)
+- [Workshop](#workshop)
+  - [1. Configure Azure Resources](#1-configure-azure-resources)
+  - [2. Expose API as an MCP Server](#2-expose-api-as-an-mcp-server)
+  - [3. Setup Python environment](#3-setup-python-environment)
+  - [4. Fastapi MCP Client (Python)](#4-fastapi-mcp-client-python)
+  - [5. Github Copilot MCP Tool (vscode)](#5-github-copilot-mcp-tool-vscode)
+  - [6. Custom Agent on Azure Ai Foundry (Python)](#6-custom-agent-on-azure-ai-foundry-python)
+  - [7. MCP Policies in APIM (EntraID)](#7-mcp-policies-in-apim-entraid)
+  - [8. Secure MCP MS Learn using EntraID and APIM](#8-secure-mcp-ms-learn-using-entraid-and-apim)
+  - [9. MCP Registry for GitHub Copilot and VSCode](#9-mcp-registry-for-github-copilot-and-vscode)
+
+
 This workshop demonstrates how to use Azure API Management (APIM) to expose an existing REST API as a Model-Context-Protocol (MCP) Server. The MCP Server can then be consumed as a tool by various clients, including AI agents built with Azure AI services.
 
 What you will learn in this workshop:
@@ -259,6 +274,8 @@ The options are:
 
 The Microsoft [Learn MCP Server](https://learn.microsoft.com/en-us/training/support/mcp) enables clients like GitHub Copilot and other AI agents to bring trusted and up-to-date information directly from Microsoft's official documentation. It is a remote MCP server that uses streamable http. It allows to search through documentation, fetch a complete article, and search through code samples. The aim of this sample is to proxy the MCP Server and to secure its access.
 
+This configuration has been tested using GitHub Copilot. The execution of `azd provision` command configures Azure APIM & Azure EntraID and update the [mcp.json](.vscode/mcp.json) file.
+
 On the EntraID side, an Entra ID (Azure AD) application registration provides the OAuth2/OIDC authentication for the Microsoft Learn MCP proxy.
 On the APIM side, Deployment of an MCP (Model Context Protocol) proxy API in Azure API Management that serves as a gateway to the Microsoft Learn documentation and code sample APIs.
 
@@ -359,7 +376,7 @@ sequenceDiagram
     deactivate MCP
 ```
 
-## MCP Registry for GitHub Copilot and VSCode.
+## 9. MCP Registry for GitHub Copilot and VSCode.
 
 Reference: [Locking Down MCP: Create a Private Registry on Azure API Center and Enforce It in GitHub Copilot And VS Code ](https://devblogs.microsoft.com/all-things-azure/locking-down-mcp-create-a-private-registry-on-azure-api-center-and-enforce-it-in-github-copilot-and-vs-code) and https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-mcp-usage/configure-mcp-registry#option-2-using-azure-api-center-as-an-mcp-registry
 
