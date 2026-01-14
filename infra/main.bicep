@@ -34,7 +34,7 @@ module mslearn 'modules/mcp-proxy.bicep' = {
       description: 'Proxy to Microsoft Learn API'
       displayName: 'Microsoft Learn API MCP'
       path: 'mslearn-mcp'
-      url: 'https://learn.microsoft.com'
+      url: 'https://learn.microsoft.com/api/mcp'
       policyXml: loadTextContent('../src/apim/mslearn/mcp-policy-mslearn.xml')
       prmPolicyXml: loadTextContent('../src/apim/mslearn/mcp-prm-policy-mslearn.xml')
       uriTemplate: '/api/mcp'
@@ -307,3 +307,8 @@ output SETLISTFM_API_KEY string = '4b15bd76-3455-4f06-b606-293848fbad49'
 
 output FASTMCP_SERVER_APP_ID string = fastMCPServerApp.outputs.appId
 output FASTMCP_CLIENT_APP_ID string = fastMCPClientApp.outputs.appId
+
+output MCP_MSLEARN_GATEWAY_URL string = mslearn.outputs.mcpGatewayUrl
+output MCP_MSLEARN_CLIENT_ID string = mcpMSLearnApp.outputs.appId
+output MCP_MSLEARN_TENANT_ID string = tenant().tenantId
+output MCP_MSLEARN_SCOPE string = 'api://${mcpMSLearnApp.outputs.appId}/user_impersonate'

@@ -13,6 +13,11 @@ cat <<EOF > .vscode/mcp.json
 				"Ocp-Apim-Subscription-Key":"${SETLISTAPI_SUBSCRIPTION_KEY}"
 			}
 		},
+		"secured-mslearn": {
+			"url": "${MCP_MSLEARN_GATEWAY_URL}",
+			"type": "http",
+			
+		}
 		
 	},
 	"inputs": []

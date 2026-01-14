@@ -70,8 +70,6 @@ resource apiPolicy 'Microsoft.ApiManagement/service/apis/policies@2024-06-01-pre
 }
 
 
-
-
 // Create the PRM (Protected Resource Metadata) endpoint within MCP server
 resource mcpPrmOperation 'Microsoft.ApiManagement/service/apis/operations@2024-06-01-preview' = {
   parent: mcpApi
@@ -95,12 +93,12 @@ resource mcpPrmOperationPolicy  'Microsoft.ApiManagement/service/apis/operations
 }
 
 
-resource dynamicDiscovery 'Microsoft.ApiManagement/service/apis@2023-05-01-preview' = {
+resource dynamicDiscovery 'Microsoft.ApiManagement/service/apis@2024-10-01-preview' = {
   parent: apimService
   name: 'mcp-prm-dynamic-discovery'
   properties: {
-    displayName: 'Dynamic Discovery Endpoint'
-    description: 'Model Context Protocol Dynamic Discovery Endpoint'
+    displayName: 'Dynamic Discovery Endpoints'
+    description: 'Model Context Protocol Dynamic Discovery Endpoints'
     subscriptionRequired: false
     path: '/.well-known/oauth-protected-resource'
     protocols: [
@@ -115,7 +113,7 @@ resource mcpPrmDiscoveryOperation 'Microsoft.ApiManagement/service/apis/operatio
   parent: dynamicDiscovery
   name: 'mcp-prm-discovery-operation'
   properties: {
-    displayName: 'Protected Resource Metadata'
+    displayName: 'MSLearn Protected Resource Metadata'
     method: 'GET'
     urlTemplate: '/${mcp.path}'
     description: 'Protected Resource Metadata endpoint (RFC 9728)'
@@ -135,3 +133,4 @@ resource mcpPrmGlobalPolicy 'Microsoft.ApiManagement/service/apis/operations/pol
 output mcpName string = mcpApi.properties.displayName
 output mcpResourceId string = mcpApi.id
 output mcpPath string = mcpApi.properties.path
+output mcpGatewayUrl string = '${apimService.properties.gatewayUrl}/${mcpApi.properties.path}'
