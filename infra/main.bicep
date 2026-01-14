@@ -212,7 +212,7 @@ module fastMCPClientApp 'modules/app-reg.bicep' = {
 module mcpMSLearnApp 'modules/app-reg.bicep' = {
   name: 'mcp-mslearn-app'
   params: {
-    appName: 'mcp-mslearn-app-${resourceToken}'
+    appName: 'mcp-proxy-mslearn'
     appDescription: 'MCP Learn resources'
     permission: 'user_impersonate'
     preAuthorizedApplication: 'aebc6443-996d-45c2-90f0-388ff96faa56' // VS Code
@@ -273,13 +273,7 @@ module fastMCPServerApp 'modules/app-reg.bicep' = {
   }
 }
 
-resource myAgentManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
-  name: 'my-agent-identity-${resourceToken}'
-  location: location
-}
 
-
-output MANAGED_IDENTITY_CLIENT_ID string = myAgentManagedIdentity.properties.clientId
 output API_CENTER_RUNTIME_ENDPOINT string = configureAPICenter ? apiCenter.outputs.apiCenterRuntimeEndpoint : ''
 output API_CENTER_NAME string = configureAPICenter ? apiCenter.outputs.apiCenterName : ''
 output AZURE_LOCATION string = location
@@ -288,7 +282,6 @@ output APIM_NAME string = apiManagement.outputs.name
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.outputs.connectionString
 output AZURE_AI_AGENT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint
 output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
-//output AZURE_AI_INFERENCE_API_KEY string = aiFoundry.outputs.aiFoundryInferenceKey
 output AZURE_AI_INFERENCE_ENDPOINT string = aiFoundry.outputs.aiFoundryInferenceEndpoint
 output AZURE_AI_MODEL_DEPLOYMENT_NAME string = aiFoundry.outputs.defaultModelDeploymentName
 output AZURE_AI_PROJECT_ENDPOINT string = aiFoundryProject.outputs.projectEndpoint

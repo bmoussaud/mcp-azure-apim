@@ -20,11 +20,7 @@ hooks:
     - shell: sh
       run: ./hooks/gen_client_secret.sh ENTRA_PROXY_AZURE_CLIENT_ID ENTRA_PROXY_AZURE_CLIENT_SECRET
     - shell: sh
-      run: ./hooks/gen_client_secret.sh ENTRA_PROXY_AZURE_CLIENT_ID ENTRA_PROXY_AZURE_CLIENT_SECRET
-    - shell: sh
       run: ./hooks/gen_client_secret.sh FASTMCP_SERVER_APP_ID FASTMCP_SERVER_CLIENT_SECRET
-    - shell: sh
-      run: ./hooks/gen_client_secret.sh MCP_MSLEARN_CLIENT_ID MCP_MSLEARN_CLIENT_SECRET
     # Generate and export Azure access token using azd auth
     - shell: sh
       run: ./hooks/gen_access_token.sh
