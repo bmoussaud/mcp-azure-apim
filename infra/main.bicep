@@ -95,6 +95,66 @@ module setlistFmApi 'modules/api.bicep' = {
   ]
 }
 
+module spotifyApi 'modules/apim/v1/api.bicep' = {
+  name: 'spotify-api'
+  params: {
+    apimName: apiManagement.outputs.name
+    appInsightsId: applicationInsights.outputs.aiId
+    appInsightsInstrumentationKey: applicationInsights.outputs.instrumentationKey
+    api: {
+      name: 'spotify'
+      description: 'Spotify API'
+      displayName: 'Spotify API'
+      path: '/spotify'
+      serviceUrl: 'https://api.spotify.com/v1'
+      subscriptionRequired: true
+      tags: ['spotify', 'api', 'music', 'setlist']
+      policyXml: loadTextContent('../src/apim/spotify/policy-spotify.xml')
+      openApiJson: loadYamlContent('../src/apim/spotify/sonallux-spotify-open-api.yml')
+    }
+  }
+}
+
+module spotifyMCP 'modules/mcp-api.bicep' =  {
+  name: 'spotify-mcp'
+  params: {
+    apimName: apiManagement.outputs.name
+    apiId: spotifyApi.outputs.apiResourceId
+    mcp:  {
+      name: 'spotify-mcp'
+      description: 'Spotify MCP for music details'
+      displayName: 'Spotify MCP'
+      path: 'spotify-mcp'
+      policyXml: loadTextContent('../src/apim/spotify/mcp-policy-spotify.xml')  
+      tools :[
+          {
+            name:'create-playlist'
+            operationName:'create-playlist'
+          }
+          {
+            name:'get-an-album'
+            operationName:'get-an-album'
+          }
+          {
+            name:'get-an-artist'
+            operationName:'get-an-artist'
+          }
+          {
+            name:'get-playlist'
+            operationName:'get-playlist'  
+          }
+          {
+            name:'search'
+            operationName:'search'
+          }
+          
+        ]
+    }
+  }
+}
+
+//user-read-private, user-top-read,  user-read-email,user-library-read,user-top-read,playlist-read-private, playlist-modify-public, playlist-modify-private, user-follow-read, user-follow-modify,streaming,
+//https://global.consent.azure-apim.net/redirect/6c4502ea-e075-413a-8320-c94a49577029-spotifymcp
 module setlistfmApiKeyNV 'modules/named-value.bicep' = {
   name: 'setlistfm-api-key-nv'
   params: {

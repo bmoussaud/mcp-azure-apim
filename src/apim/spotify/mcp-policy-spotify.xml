@@ -1,0 +1,30 @@
+<policies>
+	<!-- Throttle, authorize, validate, cache, or transform the requests -->
+	<inbound>
+		<base />
+		<trace source="inbound-start">
+            <message>@("MCP Inbound processing started for request: " + context.RequestId)</message>
+        </trace>
+		<set-variable name="requestBody" value="@{
+            return context.Request.Body != null ? context.Request.Body.As<string>(preserveContent: true) : "";
+        }" />
+	</inbound>
+	<!-- Control if and how the requests are forwarded to services  -->
+	<backend>
+		<base />
+	</backend>
+	<!-- Customize the responses -->
+	<outbound>
+		<base />
+		<set-variable name="responseBody" value="Dont Access the Response Body" />
+		<trace source="SucceedInformation" severity="error">
+			<message>MCP SucceedInformation</message>
+			<metadata name="Request.Body" value="@((context.Request.Body == null || String.IsNullOrEmpty((string)context.Variables["requestBody"])) ? "-none-" : (string)context.Variables["requestBody"])" />
+			<metadata name="Response.Body" value="@((context.Response.Body == null || String.IsNullOrEmpty((string)context.Variables["responseBody"])) ? "-none-" : (string)context.Variables["responseBody"])" />
+		</trace>
+	</outbound>
+	<!-- Handle exceptions and customize error responses  -->
+	<on-error>
+		<base />
+	</on-error>
+</policies>
